@@ -14,7 +14,10 @@ namespace APILibrary.Services.DTOs.Auth
         public string Email { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+
         //new user is user by default
         public string Role { get; set; } = "User";
+
+        public string Token { get; set; }
     }
 }

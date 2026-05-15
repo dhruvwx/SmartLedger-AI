@@ -1,9 +1,13 @@
 ﻿using APILibrary.Data;
 using APILibrary.Data.Models;
 using APILibrary.Services.DTOs.Auth;
+using APILibrary.Services.Interface;
+using APILibrary.Services.Repository;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SmartLedgerAPI.AutoMapper;
 
 namespace SmartLedgerAPI.Controllers
 {
@@ -13,10 +17,18 @@ namespace SmartLedgerAPI.Controllers
     {
 
         //Dipendency injection -- creats a variable for database access
-        private readonly SmartLedgerDbContext db;
-        public AuthController(SmartLedgerDbContext db)
+        //private readonly SmartLedgerDbContext db;
+
+        private readonly IjwtTokenRepository tokenRepository;
+        private readonly IAuthRepository authRepository;
+        private readonly IMapper mapper;
+        public AuthController(/*SmartLedgerDbContext db,*/ 
+            IAuthRepository authRepository , IMapper mapper , IjwtTokenRepository tokenRepository)
         {
-            this.db = db;
+            //this.db = db;
+            this.authRepository = authRepository;
+            this.mapper = mapper;
+            this.tokenRepository = tokenRepository;
         }
 
 
@@ -25,25 +37,17 @@ namespace SmartLedgerAPI.Controllers
         [Route("Register")]
         public async Task<IActionResult> Register(RegisterDto dto)
         {
+            var response = await authRepository.RegisterAsync(dto);
             if (ModelState.IsValid)
             {
-                var alreadyExistingUser = await db.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);  //find not used coz find only works on PK
-                if (alreadyExistingUser != null)
+                if(response == null)
                 {
-                    return BadRequest("User already Exists , please login!!");
+                    return BadRequest("User already exist please Login");
                 }
-
-                var userModel = new User
+                else
                 {
-                    FirstName = dto.FirstName,
-                    LastName = dto.LastName,
-                    Email = dto.Email,
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)
-                };
-                await db.Users.AddAsync(userModel);
-                await db.SaveChangesAsync();
-
-                return Ok("User registered .... wooohooo");
+                    return Ok(response);
+                }    
             }
             else
             {
@@ -61,21 +65,32 @@ namespace SmartLedgerAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            var checkExistingUser = await db.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
-            if (checkExistingUser == null)
+            var existingUser = await authRepository.GetUserByEmailIdAsync(dto.Email);
+            if (existingUser == null)
             {
-                return BadRequest("Invalid User Email");
+                return BadRequest(dto.Email + " does not exist");
             }
 
-            var checkPassword = BCrypt.Net.BCrypt.Verify(dto.Password, checkExistingUser.PasswordHash); //returns bool --(raw pass , hash pass)
+            var checkPassword = BCrypt.Net.BCrypt.Verify(dto.Password, existingUser.PasswordHash); //returns bool --(raw pass , hash pass)
             if (checkPassword == false)
             {
                 return BadRequest("Incorrect password");
             }
-            
             //return tokens
+            string token = tokenRepository.CreateJwtToken(existingUser);
 
-            return Ok("Login Successful");
+            var existingUserDtoResponse = mapper.Map<LoginRegisterResponseDTO>(existingUser);
+            existingUserDtoResponse.Token = token;
+
+            //var ExistingUserDtoResponse = new LoginRegisterResponseDTO
+            //{
+            //    Email = existingUser.Email,
+            //    FirstName = existingUser.FirstName,
+            //    LastName = existingUser.LastName,
+            //    Role = existingUser.Role
+            //};
+
+            return Ok(existingUserDtoResponse);
 
         }
 

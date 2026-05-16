@@ -24,7 +24,8 @@ namespace APILibrary.Services.Repository
             var claims = new List<Claim>
            {
                new Claim(ClaimTypes.Email, user.Email),  // ClaimeTypes.x , value
-               new Claim(ClaimTypes.Role , user.Role)
+               new Claim(ClaimTypes.Role , user.Role),
+               new Claim(ClaimTypes.NameIdentifier , user.Id.ToString())
            };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]!));  //get bytes need appsetings jwt key so need configuration.

@@ -16,7 +16,34 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+// adding authorization to swagger
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition(
+        JwtBearerDefaults.AuthenticationScheme,new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+            Type =Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+            Scheme = JwtBearerDefaults.AuthenticationScheme
+        });
+
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+        {
+            {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                        {
+                            Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                            Id = JwtBearerDefaults.AuthenticationScheme
+                        }
+                },
+                 new List<string>()
+            }
+        });
+});
 
 //*******Inject ConnectionString
 builder.Services.AddDbContext<SmartLedgerDbContext>
@@ -40,6 +67,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 //**********Injecting repository--whenever IRepository is requested call Repository class runs
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IjwtTokenRepository, JwtTokenRepository>();
+builder.Services.AddScoped<IExpenseRepository , ExpenseRepository>();
 
 
 //**********Injecting Mapping -- IMapper

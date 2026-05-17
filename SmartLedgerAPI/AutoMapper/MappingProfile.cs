@@ -1,5 +1,6 @@
 ﻿using APILibrary.Data.Models;
 using APILibrary.Services.DTOs.Auth;
+using APILibrary.Services.DTOs.Category;
 using APILibrary.Services.DTOs.Expense;
 using AutoMapper;
 
@@ -16,6 +17,8 @@ namespace SmartLedgerAPI.AutoMapper
 
             CreateMap<ExpenseRequestDTO , Expense>().ReverseMap();
             CreateMap<UpdateExpenseDTO , Expense>().ReverseMap();
+
+            CreateMap<Category , CategoryResponseDTO>().ReverseMap();   
 
         }
     }

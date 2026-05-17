@@ -68,6 +68,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IjwtTokenRepository, JwtTokenRepository>();
 builder.Services.AddScoped<IExpenseRepository , ExpenseRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 
 //**********Injecting Mapping -- IMapper

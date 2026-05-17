@@ -1,6 +1,7 @@
 ﻿using APILibrary.Data;
 using APILibrary.Data.Models;
 using APILibrary.Services.DTOs.DashBoard;
+using APILibrary.Services.DTOs.Expense;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -43,7 +44,7 @@ namespace APILibrary.Services.Repository
 
         // optional category -- filters int? categoryId , int? month , decimal? minAmount , decimal maxAmount
 
-        public async Task<List<Expense>> GetAllExpensesAsync(int userId, int? categoryId, int? month, decimal? minAmount, decimal? maxAmount)
+        public async Task<List<Expense>> GetAllExpensesAsync(int userId, int? categoryId, int? month, decimal? minAmount, decimal? maxAmount, int pageNo, int pageSize)
         {
             var queryable = db.Expenses.Where(e => e.UserId == userId).Include(e => e.Category).AsQueryable();
 
@@ -66,7 +67,11 @@ namespace APILibrary.Services.Repository
                 queryable = queryable.Where(q => q.Amount <= maxAmount);
             }
 
-            return await queryable.ToListAsync(); // this is when db is hit
+
+            //Pagination
+            var pageResult = (pageNo - 1) * pageSize;
+
+            return await queryable.Skip(pageResult).Take(pageSize).ToListAsync(); // this is when db is hit
 
         }
 
@@ -77,9 +82,16 @@ namespace APILibrary.Services.Repository
             var dashboard = new DashboardResponseDTO();
 
             dashboard.TotalSpent = userExpenses.Sum(e => e.Amount);
-            dashboard.MonthlySpent = userExpenses.Where(e => e.Date.Month == DateTime.UtcNow.Month).Sum(e => e.Amount);
             dashboard.TotalExpenses = userExpenses.Count();
-            dashboard.TopCategory = userExpenses.GroupBy(e => e.Category.CategoryName).OrderByDescending(g => g.Sum(e => e.Amount)
+            dashboard.MonthlySpent = userExpenses
+                .Where(e => e.Date.Month == DateTime.UtcNow.Month)
+                .Sum(e => e.Amount);
+            dashboard.TopCategory = userExpenses
+                .GroupBy(e => e.Category.CategoryName)
+                .OrderByDescending(g => g.Sum(e => e.Amount))
+                .Select(g => g.Key).FirstOrDefault()?? "NO EXPENSES";
+
+           return dashboard;
         }
 
         public async Task<Expense?> UpdateExpensesAsync(int userId, int expenseId, Expense updatedExpense)
@@ -108,6 +120,20 @@ namespace APILibrary.Services.Repository
             return expenseOfUser;
         }
 
+        async Task<List<ExpenseSummaryDTO>> IExpenseRepository.GetExpenseSummaryAsync(int userId)
+        {
+          var categoryWiseExpenseList = await db.Expenses
+                .Where(e => e.UserId == userId)
+                .Include(e => e.Category)
+                .GroupBy(e => e.Category.CategoryName)
+                .Select(g => new ExpenseSummaryDTO
+                {
+                    CategoryName = g.Key,
+                    TotalSpent = g.Sum(e => e.Amount)
+                })
+                .ToListAsync();
 
+            return categoryWiseExpenseList;
+        }
     }
 }

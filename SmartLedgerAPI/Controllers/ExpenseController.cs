@@ -60,11 +60,12 @@ namespace SmartLedgerAPI.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetAllExpenses(int? categoryId, int? month, decimal? minAmount, decimal? maxAmount)
+        public async Task<IActionResult> GetAllExpenses(int? categoryId, int? month, decimal? minAmount, decimal? maxAmount,[FromQuery] int pageNo = 1,[FromQuery] int pageSize = 5) 
+            //[FromQuery] is default
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            var userExpense = await expenseRepository.GetAllExpensesAsync(userId, categoryId, month, minAmount, maxAmount);
+            var userExpense = await expenseRepository.GetAllExpensesAsync(userId, categoryId, month, minAmount, maxAmount, pageNo, pageSize);
 
             var userExpensesDTO = mapper.Map<List<ExpenseResponseDTO>>(userExpense);
 
@@ -110,6 +111,27 @@ namespace SmartLedgerAPI.Controllers
             }
             var responseDto = mapper.Map<ExpenseResponseDTO>(deletedExpense);
             return Ok(responseDto);
+        }
+
+
+        [HttpGet("dashboard")]  //api/[controller]/dashboard -- same as [Route("dashboard")]
+        public async Task<IActionResult> GetDashboard()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var dashboard =await expenseRepository.GetDashboardAsync(userId);
+
+            return Ok(dashboard);
+        }
+
+        [HttpGet("summary")]
+        public async Task<IActionResult> GetExpenseSumarry()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+             
+            var summary = await expenseRepository.GetExpenseSummaryAsync(userId);
+
+            return Ok(summary);
         }
     }
 }

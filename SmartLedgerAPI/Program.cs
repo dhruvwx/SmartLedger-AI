@@ -69,6 +69,7 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IjwtTokenRepository, JwtTokenRepository>();
 builder.Services.AddScoped<IExpenseRepository , ExpenseRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
 
 
 //**********Injecting Mapping -- IMapper

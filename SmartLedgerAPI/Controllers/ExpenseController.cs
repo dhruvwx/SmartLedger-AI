@@ -60,12 +60,12 @@ namespace SmartLedgerAPI.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetAllExpenses(int? categoryId, int? month, decimal? minAmount, decimal? maxAmount,[FromQuery] int pageNo = 1,[FromQuery] int pageSize = 5) 
+        public async Task<IActionResult> GetAllExpenses(int? categoryId, int? month, decimal? minAmount, decimal? maxAmount,[FromQuery] int pageNo = 1,[FromQuery] int pageSize = 5, [FromQuery] string? sortBy = null, string? sortOrder = null) 
             //[FromQuery] is default
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            var userExpense = await expenseRepository.GetAllExpensesAsync(userId, categoryId, month, minAmount, maxAmount, pageNo, pageSize);
+            var userExpense = await expenseRepository.GetAllExpensesAsync(userId, categoryId, month, minAmount, maxAmount, pageNo, pageSize, sortBy, sortOrder);
 
             var userExpensesDTO = mapper.Map<List<ExpenseResponseDTO>>(userExpense);
 

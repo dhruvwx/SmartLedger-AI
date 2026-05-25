@@ -44,10 +44,9 @@ namespace APILibrary.Services.Repository
 
         // optional category -- filters int? categoryId , int? month , decimal? minAmount , decimal maxAmount
 
-        public async Task<List<Expense>> GetAllExpensesAsync(int userId, int? categoryId, int? month, decimal? minAmount, decimal? maxAmount, int pageNo, int pageSize)
+        public async Task<List<Expense>> GetAllExpensesAsync(int userId, int? categoryId, int? month, decimal? minAmount, decimal? maxAmount, int pageNo, int pageSize, string? sortBy, string? sortOrder) 
         {
             var queryable = db.Expenses.Where(e => e.UserId == userId).Include(e => e.Category).AsQueryable();
-
             //now filter every nullable optional parameter
 
             if(categoryId != null)
@@ -66,7 +65,31 @@ namespace APILibrary.Services.Repository
             {
                 queryable = queryable.Where(q => q.Amount <= maxAmount);
             }
-
+            if (string.IsNullOrWhiteSpace(sortBy) == false)
+            {
+                if(sortBy.ToLower() == "amount")
+                {
+                    if (sortOrder?.ToLower() == "desc" || sortOrder?.ToLower() == "descending")
+                    {
+                          queryable = queryable.OrderByDescending(q => q.Amount);
+                    }
+                    else
+                    {
+                        queryable.OrderBy(q => q.Amount);
+                    }
+                }
+                else if(sortBy.ToLower() == "date")
+                {
+                    if(sortOrder?.ToLower() == "desc" || sortOrder?.ToLower() == "descending")
+                    {
+                        queryable = queryable.OrderByDescending(q => q.Date);
+                    }
+                    else
+                    {
+                        queryable = queryable.OrderBy(q => q.Date);
+                    }
+                }
+            }
 
             //Pagination
             var pageResult = (pageNo - 1) * pageSize;

@@ -14,23 +14,15 @@ namespace APILibrary.Data.Models
 
         public int Id { get; set; }
 
-
-
         //max budget ALLOWED
         public decimal MonthMaxAmountLimit { get; set; }
 
-
-        
         //1 to 12 (Jan to Dec)
         public int Month {  get; set; }
 
 
-
         //2026 2027
         public int Year { get; set; }
-
-
-
 
         // =======Foreign Key======= which user owns this budget?
         public int UserId { get; set; }

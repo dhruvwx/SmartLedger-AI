@@ -22,15 +22,17 @@ namespace SmartLedgerAPI.Controllers
         //private readonly SmartLedgerDbContext db;
 
         private readonly IjwtTokenRepository tokenRepository;
+        private readonly ILogger<AuthController> logger;
         private readonly IAuthRepository authRepository;
         private readonly IMapper mapper;
         public AuthController(/*SmartLedgerDbContext db,*/ 
-            IAuthRepository authRepository , IMapper mapper , IjwtTokenRepository tokenRepository)
+            IAuthRepository authRepository , IMapper mapper , IjwtTokenRepository tokenRepository , ILogger<AuthController> logger)
         {
             //this.db = db;
             this.authRepository = authRepository;
             this.mapper = mapper;
             this.tokenRepository = tokenRepository;
+            this.logger = logger;
         }
 
 
@@ -44,15 +46,18 @@ namespace SmartLedgerAPI.Controllers
             {
                 if(response == null)
                 {
+                    logger.LogWarning($"{dto.Email} already exists");
                     return BadRequest("User already exist please Login");
                 }
                 else
                 {
+                    logger.LogInformation($"new user {dto.Email} registered");
                     return Ok(response);
                 }    
             }
             else
             {
+
                 return BadRequest(ModelState);
             }
         }
@@ -62,6 +67,7 @@ namespace SmartLedgerAPI.Controllers
         [Route("Login")]
         public async Task<IActionResult> Login(LoginDTO dto)
         {
+           
             if(ModelState.IsValid == false)
             {
                 return BadRequest(ModelState);
@@ -70,16 +76,20 @@ namespace SmartLedgerAPI.Controllers
             var existingUser = await authRepository.GetUserByEmailIdAsync(dto.Email);
             if (existingUser == null)
             {
+                logger.LogWarning($"{dto.Email} does not exist");
                 return BadRequest(dto.Email + " does not exist");
             }
 
             var checkPassword = BCrypt.Net.BCrypt.Verify(dto.Password, existingUser.PasswordHash); //returns bool --(raw pass , hash pass)
             if (checkPassword == false)
             {
-                return BadRequest("Incorrect password");
+                logger.LogWarning($"Failed login for {dto.Email} incorrect password");
+                return BadRequest("Incorrect Password");
             }
             //return tokens
             string token = tokenRepository.CreateJwtToken(existingUser);
+
+            logger.LogInformation($"{dto.Email} logined successfully");
 
             var existingUserDtoResponse = mapper.Map<LoginRegisterResponseDTO>(existingUser);
             existingUserDtoResponse.Token = token;

@@ -1,10 +1,12 @@
 ﻿using APILibrary.Data.Models;
+using APILibrary.Services.AI.Interface;
 using APILibrary.Services.DTOs.Expense;
 using APILibrary.Services.Repository;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using System.Security.Claims;
 
 namespace SmartLedgerAPI.Controllers
@@ -16,12 +18,16 @@ namespace SmartLedgerAPI.Controllers
     {
         private readonly IExpenseRepository expenseRepository;
         private readonly ICategoryRepository categoryRepository;
+        private readonly ILogger<ExpenseController> logger;
+        private readonly IExpenseCategorizerByAi expenseCategorizerByAi;
         private readonly IMapper mapper;
 
-        public ExpenseController(IExpenseRepository expenseRepository , IMapper mapper , ICategoryRepository categoryRepository)
+        public ExpenseController(IExpenseRepository expenseRepository , IMapper mapper , ICategoryRepository categoryRepository , ILogger<ExpenseController> logger , IExpenseCategorizerByAi expenseCategorizerByAi)
         {
             this.expenseRepository = expenseRepository;
             this.categoryRepository = categoryRepository;
+            this.logger = logger;
+            this.expenseCategorizerByAi = expenseCategorizerByAi;
             this.mapper = mapper;
         }
 
@@ -40,21 +46,30 @@ namespace SmartLedgerAPI.Controllers
 
             var category = await categoryRepository.GetCategoryById(expenseModel.CategoryId);
 
-            Console.WriteLine(category.CategoryName);
+           
             if (category.CategoryName.Trim() == "Business")
             {
                 expenseModel.IsGstApplicable = true;
-                Console.WriteLine(expenseModel.IsGstApplicable);
             }
             else
             {
                 expenseModel.IsGstApplicable = false;
             }
 
+            string categoryReturnedByAi =
+await
+expenseCategorizerByAi
+.CategorizeExpenseAsync(
+dto.Description);
+
+            Console.WriteLine(
+            categoryReturnedByAi);
+
             expenseModel = await expenseRepository.CreateExpenseAsync(expenseModel);
 
 
             var output = mapper.Map<ExpenseResponseDTO>(expenseModel);
+            logger.LogInformation($"{expenseModel.UserId} created expense {expenseModel.Amount}");
             return Ok(output);
         }
 
@@ -93,9 +108,8 @@ namespace SmartLedgerAPI.Controllers
                 return BadRequest("USER OR EXPENSE DONT EXIST");
             }
 
+            logger.LogInformation($"user {userId} UPDATED EXPENSE id {id}");
             return Ok(mapper.Map<ExpenseResponseDTO>(updatedValues));
-
-
         }
 
 
@@ -110,17 +124,22 @@ namespace SmartLedgerAPI.Controllers
                 return BadRequest("expense does no exist");
             }
             var responseDto = mapper.Map<ExpenseResponseDTO>(deletedExpense);
+
+            logger.LogInformation($"user {userId} deleted id {expenseId}");
+
             return Ok(responseDto);
         }
 
 
-        [HttpGet("dashboard")]  //api/[controller]/dashboard -- same as [Route("dashboard")]
+        [HttpGet("dashboard")]  
+        //api/[controller]/dashboard -- same as [Route("dashboard")]
         public async Task<IActionResult> GetDashboard()
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            var dashboard =await expenseRepository.GetDashboardAsync(userId);
+            var dashboard = await expenseRepository.GetDashboardAsync(userId);
 
+            
             return Ok(dashboard);
         }
 

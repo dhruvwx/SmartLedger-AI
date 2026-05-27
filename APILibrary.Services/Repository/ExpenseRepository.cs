@@ -128,6 +128,8 @@ namespace APILibrary.Services.Repository
             expenseOfUser.Date = updatedExpense.Date;
             expenseOfUser.Description = updatedExpense.Description; ;
             expenseOfUser.Amount = updatedExpense.Amount;
+            expenseOfUser.IsGstApplicable = updatedExpense.IsGstApplicable;
+
 
             var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == updatedExpense.CategoryId);
             if (category.CategoryName == "Business")

@@ -14,12 +14,14 @@ namespace SmartLedgerAPI.Controllers
     {
         private readonly IBudgetRepository budgetRepository;
         private readonly IMapper mapper;
+        private readonly ILogger<BudgetController> logger;
 
         public BudgetController(IBudgetRepository budgetRepository,
-         IMapper mapper)
+         IMapper mapper , ILogger<BudgetController> logger)
         {
             this.budgetRepository = budgetRepository;
             this.mapper = mapper;
+            this.logger = logger;
         }
 
         [HttpPost]
@@ -39,8 +41,11 @@ namespace SmartLedgerAPI.Controllers
             var createBudget = await budgetRepository.CreateBudgetAsync(budgetModel);
 
             //var output = mapper.Map<BudgetResponseDTO>(createBudget);
+            logger.LogInformation($"{userId} created budget");
 
-            return Ok(createBudget);
+            var resonseBudgetDto = mapper.Map<BudgetResponseDTO>(createBudget);
+
+            return Ok(resonseBudgetDto);
         }
 
         [HttpGet]
@@ -75,6 +80,8 @@ namespace SmartLedgerAPI.Controllers
 
             var responseDto = mapper.Map<BudgetResponseDTO>(updatedBudget);
 
+            logger.LogInformation($"{userId} updated budget id {budgetId}");
+
             return Ok(responseDto);
         }
 
@@ -92,6 +99,8 @@ namespace SmartLedgerAPI.Controllers
             }
 
             var responseDto = mapper.Map<BudgetResponseDTO>(deletedBudget);
+
+            logger.LogInformation($"{userId} deleted budget id {budgetId}");
 
             return Ok(responseDto);
         }

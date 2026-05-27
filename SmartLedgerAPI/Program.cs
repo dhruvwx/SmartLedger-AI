@@ -1,15 +1,33 @@
 //CREATING BUILDER
 using APILibrary.Data;
+using APILibrary.Services.AI.Interface;
+using APILibrary.Services.AI.Services;
 using APILibrary.Services.Interface;
 using APILibrary.Services.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using SmartLedgerAPI.AutoMapper;
+using SmartLedgerAPI.Middlewares;
 using System.Text;
 
+
+//Injecting Serilog
+var logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.File("Logs/SmartLedgerLogs_log.txt", rollingInterval: RollingInterval.Hour)
+    .CreateLogger();
+Log.Logger = logger;
+
+
 var builder = WebApplication.CreateBuilder(args);
+
+//CONNECTING .NET TO SERILOG
+builder.Logging.ClearProviders();
+builder.Host.UseSerilog(logger);
 
 // Add services to the container.
 
@@ -63,8 +81,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))  //! tells it wont be null
     });
 
+// INJECTING CONSTRUCTOR to use external api
+        //builder.Services.AddHttpClient();
+//Injecting AI Repository
+builder.Services.AddHttpClient<IExpenseCategorizerByAi, ExpenseCategorizerByAi>();
 
 //**********Injecting repository--whenever IRepository is requested call Repository class runs
+
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IjwtTokenRepository, JwtTokenRepository>();
 builder.Services.AddScoped<IExpenseRepository , ExpenseRepository>();
@@ -82,6 +105,8 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
          //USING THIS WE ADD MIDDLE WARE  
+
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -89,6 +114,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+//Injecting Global Exception Handler
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 
 //*********BEFORE Authorization

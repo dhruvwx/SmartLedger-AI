@@ -1,6 +1,6 @@
 //CREATING BUILDER
 using APILibrary.Data;
-using APILibrary.Services.AI.Interface;
+using APILibrary.Services.AI.Repository;
 using APILibrary.Services.AI.Services;
 using APILibrary.Services.Interface;
 using APILibrary.Services.Repository;

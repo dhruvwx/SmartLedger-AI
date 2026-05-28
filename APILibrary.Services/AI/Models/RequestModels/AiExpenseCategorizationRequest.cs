@@ -6,12 +6,12 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 
-namespace APILibrary.Services.AI.Models
+namespace APILibrary.Services.AI.Models.RequestModels
 {
     public class AiExpenseCategorizationRequest
     {
         [JsonPropertyName("model")]
-        public string AiModel { get; set; }
+        public string AIModel { get; set; }
 
         [JsonPropertyName("messages")]
         public List<MsgToAiModel> MsgsSentToAi { get; set; }

@@ -20,9 +20,13 @@ namespace APILibrary.Services.DTOs.Expense
         //when was expense done
         public DateTime Date { get; set; } = DateTime.UtcNow;
 
-        // Foreign Key: which category?
-        [Required]
-        public int CategoryId { get; set; }
+
+
+
+        ///REMOVED COZ NOW AI PUTS THE CATEGORY ID
+        //// Foreign Key: which category?
+        //[Required]
+        //public int CategoryId { get; set; }
 
     }
 }

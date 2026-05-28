@@ -24,10 +24,16 @@ namespace APILibrary.Services.Repository
 
 
         //this is needed beacuse we want to know what is the name of category , if business we make GST applicable -- use in expense controller
-        public async Task<Category> GetCategoryById(int categoryId)
+        public async Task<Category> GetCategoryByIdAsync(int categoryId)
         {
             return await db.Categories.FirstOrDefaultAsync(c => c.Id == categoryId);
 
+        }
+
+        //used in expense controller
+        public async Task<Category> GetCategoryByNameAsync(string categoryName)
+        {
+            return await db.Categories.FirstOrDefaultAsync(c => c.CategoryName == categoryName);
         }
     }
 }

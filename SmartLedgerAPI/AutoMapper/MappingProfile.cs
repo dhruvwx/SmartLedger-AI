@@ -13,9 +13,10 @@ namespace SmartLedgerAPI.AutoMapper
         {
             CreateMap<User, LoginRegisterResponseDTO>();
 
-            CreateMap<Expense, ExpenseResponseDTO>().ForMember(e => e.CategoryName, opt => opt.MapFrom(e => e.Category.CategoryName));
+            CreateMap<Expense, ExpenseResponseDTO>()
+                            .ForMember(e => e.CategoryName,
+                                        opt => opt.MapFrom(e => e.Category.CategoryName));
             CreateMap<ExpenseResponseDTO, Expense>();
-
             CreateMap<ExpenseRequestDTO , Expense>().ReverseMap();
             CreateMap<UpdateExpenseDTO , Expense>().ReverseMap();
 

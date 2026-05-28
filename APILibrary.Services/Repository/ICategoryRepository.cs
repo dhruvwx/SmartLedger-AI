@@ -12,7 +12,9 @@ namespace APILibrary.Services.Repository
         Task<List<Category>> GetAllCategoriesAsync();
 
 
-        //this is needed beacuse we want to know what is the name of category , if business we make GST applicable
-        Task<Category> GetCategoryById(int categoryId);
+        //this is needed beacuse we want to know what is the name of category , if business we make GST applicable -- expense controller
+        Task<Category> GetCategoryByIdAsync(int categoryId);
+
+        Task<Category> GetCategoryByNameAsync(string categoryName);
     }
 }

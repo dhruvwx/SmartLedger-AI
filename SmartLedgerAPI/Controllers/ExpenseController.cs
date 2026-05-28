@@ -1,5 +1,5 @@
 ﻿using APILibrary.Data.Models;
-using APILibrary.Services.AI.Interface;
+using APILibrary.Services.AI.Repository;
 using APILibrary.Services.DTOs.Expense;
 using APILibrary.Services.Repository;
 using AutoMapper;
@@ -39,12 +39,19 @@ namespace SmartLedgerAPI.Controllers
             {
                 return BadRequest(ModelState);
             }
-           
+
+            string categoryNameReturnedByAi = await expenseCategorizerByAi.CategorizeExpenseAsync(dto.Description);
+
+            var categoryByName = await categoryRepository.GetCategoryByNameAsync(categoryNameReturnedByAi);
+
+
             var expenseModel = mapper.Map<Expense>(dto);
+            expenseModel.CategoryId = categoryByName.Id;
 
             expenseModel.UserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            
 
-            var category = await categoryRepository.GetCategoryById(expenseModel.CategoryId);
+            var category = await categoryRepository.GetCategoryByIdAsync(expenseModel.CategoryId);
 
            
             if (category.CategoryName.Trim() == "Business")
@@ -55,15 +62,7 @@ namespace SmartLedgerAPI.Controllers
             {
                 expenseModel.IsGstApplicable = false;
             }
-
-            string categoryReturnedByAi =
-await
-expenseCategorizerByAi
-.CategorizeExpenseAsync(
-dto.Description);
-
-            Console.WriteLine(
-            categoryReturnedByAi);
+           
 
             expenseModel = await expenseRepository.CreateExpenseAsync(expenseModel);
 

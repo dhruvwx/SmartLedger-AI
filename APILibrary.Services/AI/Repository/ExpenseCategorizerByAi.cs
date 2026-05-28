@@ -1,5 +1,4 @@
-﻿using APILibrary.Services.AI.Interface;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using System.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using APILibrary.Services.AI.Models;
 using System.Text.Json;
+using APILibrary.Services.AI.Models.RequestModels;
+using APILibrary.Services.AI.Repository;
+using APILibrary.Services.AI.Models.ResponseModels;
 
 namespace APILibrary.Services.AI.Services
 {
@@ -34,13 +36,13 @@ namespace APILibrary.Services.AI.Services
 
             var aiExpenseCategorizationRequest = new AiExpenseCategorizationRequest
             {
-                AiModel = model,
+                AIModel = model,
                 MsgsSentToAi = new List<MsgToAiModel>
                 {
                     new MsgToAiModel
                     {
                         MsgSenderRole = "system",
-                        MsgContentSentToAI = "You Categorize Expenses , Return only one category name , choose only from these exact categories [ Food/Dining , Travel , Utilities , Entertainment , Business , Shopping , HealthCare ] do not explain anything , no extra words , return just one of these categories"
+                        MsgContentSentToAI = "you are an expense categorizer system ,your task is tp Categorize Expenses ,you must Return only one category name , choose only from these exact categories [ Food/Dining , Travel , Utilities , Entertainment , Business , Shopping , HealthCare ] RULES : RETURN EXCATLY ONE CATEGORY NAME OUT OF THE 7 I GAVE YOU , do not explain anything , no extra words ,no sentences, no punctuation, no reasoning , no category outside list, no explanations , return just one of the categories out of Food/Dining , Travel , Utilities , Entertainment , Business , Shopping , HealthCare , make sure u give no other letter or word except the 7 categories i gave u nothing else not a single letter"
                     },
 
                     new MsgToAiModel
@@ -61,11 +63,14 @@ namespace APILibrary.Services.AI.Services
             var responseSend = await httpClient.PostAsync(llmApiUrl, httpBodyObjectWithJson);
             responseSend.EnsureSuccessStatusCode();
 
-            var resonseRecievedFromAi = await responseSend.Content.ReadAsStringAsync();
+            var responseRecievedFromAi = await responseSend.Content.ReadAsStringAsync();
 
-            Console.WriteLine(resonseRecievedFromAi);
+            var deSerializedResponse = JsonSerializer.Deserialize<AiExpenseCategorizationResponse>(responseRecievedFromAi);
 
-            return resonseRecievedFromAi;
+            var categoryGivenByAi = deSerializedResponse.Choices[0].Message.Content;
+            Console.WriteLine(categoryGivenByAi);
+            return categoryGivenByAi;
         }
     }
 }
+  

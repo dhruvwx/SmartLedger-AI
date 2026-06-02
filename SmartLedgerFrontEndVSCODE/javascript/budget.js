@@ -1,4 +1,6 @@
   const token = localStorage.getItem("token");
+  let allBudgets = [];
+  let editingBudgetId = null;
 
  if(!token)
  {
@@ -53,31 +55,52 @@
 };
 
 console.log(budgetData);
+let url = "https://localhost:7178/api/Budget";
+let httpMethod = "POST";
 
-    fetch("https://localhost:7178/api/Budget" , 
+if (editingBudgetId !== null)
   {
-      method:"POST",
+    url = `https://localhost:7178/api/Budget/${editingBudgetId}`;
+    httpMethod = "PUT";
+
+}
+
+    fetch(url , 
+  {
+      method:httpMethod,
       headers:
       {
                 "Content-Type":"application/json",
                 "Authorization":`Bearer ${token}`
                 },
-      body: JSON.stringify(
-        {
-        monthMaxAmountLimit : parseFloat(amount),
-        month : parseInt(month),
-        year : parseInt(year),
-        categoryId : parseInt(categoryId)
-        
-        })
+      body: JSON.stringify(budgetData)
      })
     .then(async response => {
        console.log(response);
        const errortext = await response.text();
        console.log(errortext);
 
-                        if(response.ok){
-                          alert("Budget Saved");
+                        if(response.ok)
+                        {
+
+                          if(editingBudgetId === null)
+                            {
+                                alert("Budget Saved");
+                            }
+                            else
+                            {
+                                alert("Budget Updated");
+                            }
+
+                           document.getElementById("budgetAmount").value = "";
+                           document.getElementById("year").value = "";
+                           document.getElementById("month").value = "";
+                           document.getElementById("category").value = "";
+
+                           editingBudgetId = null;
+                          document.getElementById("saveBudgetButton").textContent = "Save Budget";
+
+                           loadBudgets(); //refreshes table
                         }
 
   })
@@ -98,6 +121,7 @@ function loadBudgets()
      .then(response => response.json())
      .then(budgets => 
           {
+            allBudgets = budgets;
             const tableBody = document.getElementById("budgetTableBody");
             tableBody.innerHTML="";
 
@@ -110,6 +134,18 @@ function loadBudgets()
                             <td>${budget.categoryName}</td>
                             <td>${budget.spentAmount}</td>
                             <td>${budget.remainingAmount}</td>
+
+                            <td>
+
+                              <button class="btn btn-warning me-2" onclick="editBudget(${budget.budgetId})">
+                                              Edit
+                              </button>
+
+                              <button class="btn btn-danger" onclick="deleteBudget(${budget.budgetId})">
+                                             Delete
+                              </button>
+
+                            </td>
                             `;
                 tableBody.appendChild(row);
                 
@@ -119,3 +155,55 @@ function loadBudgets()
      .catch(error => {console.log(error);});
 }
 loadBudgets();
+
+
+//delete budget
+function deleteBudget(budgetId)
+    {
+      const confirmed = confirm("Are you sure you want to delete this budget?");
+      if(!confirmed){ return; }
+
+      fetch(`https://localhost:7178/api/Budget/${budgetId}` , 
+        {
+          method:"DELETE",
+          headers:
+            {
+              "Authorization":`Bearer ${token}`
+              }
+         })
+         .then(response =>
+          {
+            if(response.ok)
+              {
+                alert("BUDGET DELETEDD")
+                loadBudgets();
+                }
+           })
+           .catch(error => {console.log(error);});
+
+    }
+
+//EDIT BUDGET
+function editBudget(budgetId)
+  {
+    const budget = allBudgets.find(b=> b.budgetId === budgetId);
+
+    editingBudgetId = budgetId;
+
+    document.getElementById("budgetAmount").value =
+        budget.monthMaxAmountLimit;
+
+    document.getElementById("month").value =
+        budget.month;
+
+    document.getElementById("year").value =
+        budget.year;
+
+    document.getElementById("category").value =
+        budget.categoryId;
+
+    //change button text
+    document.getElementById("saveBudgetButton")
+        .textContent = "Update Budget";
+      
+  }

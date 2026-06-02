@@ -18,7 +18,7 @@ namespace APILibrary.Services.DTOs.Expense
 
 
         //when was expense done
-        public DateTime Date { get; set; } = DateTime.UtcNow;
+        public DateTime? Date { get; set; }
 
 
 

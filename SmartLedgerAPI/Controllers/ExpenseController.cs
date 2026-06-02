@@ -46,8 +46,9 @@ namespace SmartLedgerAPI.Controllers
 
 
             var expenseModel = mapper.Map<Expense>(dto);
-            expenseModel.CategoryId = categoryByName.Id;
 
+            expenseModel.CategoryId = categoryByName.Id;
+            expenseModel.Date = dto.Date ?? DateTime.UtcNow;
             expenseModel.UserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             
 

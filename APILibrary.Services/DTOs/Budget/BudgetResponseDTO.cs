@@ -19,5 +19,11 @@ namespace APILibrary.Services.DTOs.Budget
         public string CategoryName { get; set; }
 
         public string WarningMessage { get; set; }
+
+        public int BudgetId { get; set; }
+        public int Month { get; set; }
+        public int Year { get; set; }
+        public int CategoryId { get; set; }
+
     }
 };

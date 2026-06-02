@@ -23,7 +23,7 @@ namespace APILibrary.Services.Repository
         {
             var claims = new List<Claim>
            {
-               new Claim(ClaimTypes.Email, user.Email),  // ClaimeTypes.x , value
+               new Claim(ClaimTypes.Email, user.Email),  // ClaimsTypes.x , value
                new Claim(ClaimTypes.Role , user.Role),
                new Claim(ClaimTypes.NameIdentifier , user.Id.ToString())
            };
@@ -37,7 +37,7 @@ namespace APILibrary.Services.Repository
                 issuer: config["Jwt:Issuer"],
                 audience: config["Jwt:Audience"],
                 claims,
-                expires: DateTime.Now.AddMinutes(60),
+                expires: DateTime.Now.AddDays(1),
                 signingCredentials: credentials
                 );
 

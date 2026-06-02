@@ -72,7 +72,12 @@ namespace APILibrary.Services.Repository
                         RemainingAmount = b.MonthMaxAmountLimit - spentAmountForSingleBudget,
                         IsExceeded = spentAmountForSingleBudget > b.MonthMaxAmountLimit,
                         CategoryName = b.Category.CategoryName,
-                        WarningMessage = warning
+                        WarningMessage = warning,
+
+                        BudgetId = b.Id,
+                        Month = b.Month,
+                        Year = b.Year,
+                        CategoryId = b.CategoryId
 
                     });
             }

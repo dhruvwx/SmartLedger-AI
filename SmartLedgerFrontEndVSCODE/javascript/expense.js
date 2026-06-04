@@ -7,10 +7,43 @@ if(!token)
 let allExpenses = [];
 let editingExpenseId = null;
 let editingExpense = null;
+let currentPage = 1;
+let pageSize = 5;
 
-function loadExpenses()
+
+
+function loadExpenses(page = 1)
   {
-    fetch("https://localhost:7178/api/Expense" , 
+    currentPage = page;
+    const categoryId = document.getElementById("filterCategory").value;
+    const month = document.getElementById("filterMonth").value;
+    const minAmount = document.getElementById("minAmount").value;
+    const maxAmount = document.getElementById("maxAmount").value;
+    const sortBy = document.getElementById("sortBy").value;
+    const sortOrder = document.getElementById("sortOrder").value;
+  
+    let url = `https://localhost:7178/api/Expense?pageNo=${currentPage}&pageSize=${pageSize}`;
+    if(categoryId)
+      {
+        url += `&categoryId=${categoryId}`;
+    }
+    if(month){
+      url += `&month=${month}`;
+    }
+    if(minAmount){
+      url += `&minAmount=${minAmount}`;
+    }
+    if(maxAmount){
+      url += `&maxAmount=${maxAmount}`;
+    }
+    if(sortBy){
+      url += `&sortBy=${sortBy}`;
+    }
+    if(sortOrder){
+      url += `&sortOrder=${sortOrder}`;
+    }
+
+    fetch(url , 
       {
         method:"GET",
         headers: {
@@ -22,6 +55,8 @@ function loadExpenses()
           {
             console.log(expenses);
             allExpenses = expenses;
+            document.getElementById("pageNumber").textContent = `Page ${currentPage}`;
+
             const tableBody = document.getElementById("expenseTableBody");
             tableBody.innerHTML = "";
 
@@ -163,3 +198,39 @@ function editExpense(expenseId)
       document.getElementById("date").value = expense.date.split("T")[0];
       document.getElementById("saveExpenseButton").textContent = "Update Expense";
     }
+
+
+    //apply filter button
+    document.getElementById("applyFiltersButton").addEventListener("click" , function()
+    {
+      loadExpenses(1);
+
+  });
+
+  document.getElementById("clearFiltersButton").addEventListener("click" , function()
+  {
+    document.getElementById("filterCategory").value = "";
+    document.getElementById("filterMonth").value = "";
+    document.getElementById("minAmount").value = "";
+    document.getElementById("maxAmount").value = "";
+    document.getElementById("sortBy").value = "";
+    document.getElementById("sortOrder").value = "";
+
+    loadExpenses(1);
+  });
+
+  //next page button
+  document.getElementById("nextPage").addEventListener("click" , function()
+  {
+    currentPage++;
+    loadExpenses(currentPage);
+  });
+   document.getElementById("prevPage").addEventListener("click" , function()
+    {
+      if(currentPage > 1)
+        {
+          currentPage--;
+          loadExpenses(currentPage);
+        }
+   });
+

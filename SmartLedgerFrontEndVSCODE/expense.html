@@ -77,6 +77,157 @@
 
       <hr>
 
+
+      <!-- FILTER SECTION -->
+<div class="card shadow p-3 mb-4">
+
+    <h4 class="mb-3">
+        Filters
+    </h4>
+
+    <div class="row">
+
+        <!-- Category -->
+        <div class="col-md-2">
+
+            <select
+                id="filterCategory"
+                class="form-select">
+
+                <option value="">
+                    All Categories
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- Month -->
+        <div class="col-md-2">
+
+            <select
+                id="filterMonth"
+                class="form-select">
+
+                <option value="">
+                    All Months
+                </option>
+
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+
+            </select>
+
+        </div>
+
+
+        <!-- Min Amount -->
+        <div class="col-md-2">
+
+            <input
+                type="number"
+                id="minAmount"
+                class="form-control"
+                placeholder="Min Amount">
+
+        </div>
+
+
+        <!-- Max Amount -->
+        <div class="col-md-2">
+
+            <input
+                type="number"
+                id="maxAmount"
+                class="form-control"
+                placeholder="Max Amount">
+
+        </div>
+
+
+        <!-- Sort By -->
+        <div class="col-md-2">
+
+            <select
+                id="sortBy"
+                class="form-select">
+
+                <option value="">
+                    Sort By
+                </option>
+
+                <option value="amount">
+                    Amount
+                </option>
+
+                <option value="date">
+                    Date
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- Sort Order -->
+        <div class="col-md-2">
+
+            <select
+                id="sortOrder"
+                class="form-select">
+
+                <option value="">
+                    Order
+                </option>
+
+                <option value="asc">
+                    Ascending
+                </option>
+
+                <option value="desc">
+                    Descending
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+    <div class="mt-3">
+
+        <button
+            id="applyFiltersButton"
+            class="btn btn-primary">
+
+            Apply Filters
+
+        </button>
+
+        <button
+            id="clearFiltersButton"
+            class="btn btn-secondary">
+
+            Clear Filters
+
+        </button>
+
+    </div>
+
+</div>
+
+
        <table class="table mt-3">
         <thead>
           <tr>
@@ -90,6 +241,38 @@
 
         <tbody id="expenseTableBody"></tbody>
       </table>
+
+
+      <div class="mt-3 text-center">
+
+    <button
+        id="prevPage"
+        class="btn btn-secondary">
+
+        Previous
+
+    </button>
+
+    <span
+        id="pageNumber"
+        class="mx-3">
+
+        Page 1
+
+    </span>
+
+    <button
+        id="nextPage"
+        class="btn btn-secondary">
+
+        Next
+
+    </button>
+
+</div>
+
+
+
     </div>
   </div>
 

@@ -75,7 +75,7 @@ namespace APILibrary.Services.Repository
                     }
                     else
                     {
-                        queryable.OrderBy(q => q.Amount);
+                        queryable = queryable.OrderBy(q => q.Amount);
                     }
                 }
                 else if(sortBy.ToLower() == "date")

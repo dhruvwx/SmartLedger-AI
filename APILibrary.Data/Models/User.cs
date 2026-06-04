@@ -26,7 +26,7 @@ namespace APILibrary.Data.Models
         //new user is user by default
         public string Role { get; set; } = "User";
 
-
+           
 
         //Standard time every where so can change to show local on the front end
         public DateTime UserCreatedAt { get; set; } = DateTime.UtcNow;

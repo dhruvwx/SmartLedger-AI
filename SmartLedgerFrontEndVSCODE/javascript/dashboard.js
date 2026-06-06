@@ -60,6 +60,8 @@ function loadDashboard()
 
         document.getElementById("topCategory")
         .innerText = data.topCategory;
+
+        document.getElementById("totalExpenses").innerText = data.totalExpenses
     })
 
     .catch(error =>
@@ -76,7 +78,7 @@ function loadExpenses()
 {
     // get all expenses api
 
-    fetch("https://localhost:7178/api/Expense",
+    fetch("https://localhost:7178/api/Expense?pageNo=1&pageSize=5&sortBy=date&sortOrder=desc",
     {
         method: "GET",
 
@@ -102,6 +104,17 @@ function loadExpenses()
         tableBody.innerHTML = "";
         // clear old rows
 
+        if(data.length === 0){
+            tableBody.innerHTML = 
+                    `
+                    <tr>
+                        <td colspan="4" class="text-center text-muted"> NO EXPENSES YET
+                        </td>
+                    </tr>    
+                    `;
+                    return;
+        }
+
         data.forEach(expense =>
         {
             // loop through each expense
@@ -109,11 +122,13 @@ function loadExpenses()
             tableBody.innerHTML +=
             `
             <tr>
+                <td>${expense.date.split("T")[0]}</td>
+
                 <td>${expense.description}</td>
 
-                <td>₹${expense.amount}</td>
-
                 <td>${expense.categoryName}</td>
+
+                 <td>₹${expense.amount}</td>
 
                 <td>
                     <button

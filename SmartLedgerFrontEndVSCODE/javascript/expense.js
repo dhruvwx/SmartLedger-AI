@@ -10,7 +10,32 @@ let editingExpense = null;
 let currentPage = 1;
 let pageSize = 5;
 
+function loadCategories()
+{
+  fetch("https://localhost:7178/api/Category" , 
+    {
+      method: "GET",
+      headers: 
+      {
+        "Authorization":`Bearer ${token}`
+      }
+     })
+     .then(response => response.json())
+     .then(categories => 
+      {
+        const filterDropdown = document.getElementById("filterCategory");
 
+        categories.forEach(category =>
+          {
+            const option = document.createElement("option");
+            option.value = category.id;
+            option.textContent = category.categoryName;
+            filterDropdown.appendChild(option);
+           });
+     }) 
+     .catch(error => {console.log(error);});
+}  
+loadCategories();
 
 function loadExpenses(page = 1)
   {

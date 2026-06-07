@@ -100,7 +100,13 @@ namespace SmartLedgerAPI.Controllers
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!); 
 
             var expenseModel = mapper.Map<Expense>(dto);
-           
+
+            string categoryNameReturnedByAi = await expenseCategorizerByAi.CategorizeExpenseAsync(dto.Description);
+
+            var categoryByName = await categoryRepository.GetCategoryByNameAsync(categoryNameReturnedByAi);
+
+            expenseModel.CategoryId = categoryByName.Id;
+
             var updatedValues = await expenseRepository.UpdateExpensesAsync(userId, id, expenseModel);
 
             if(updatedValues == null)

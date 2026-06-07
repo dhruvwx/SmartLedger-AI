@@ -204,6 +204,9 @@ document.getElementById("addExpenseButton")
         loadDashboard();
         // refresh cards
 
+        loadCategoryChart();
+        //refresh chart
+
         document.getElementById("description").value = "";
         document.getElementById("amount").value = "";
         // clear inputs
@@ -241,6 +244,9 @@ window.deleteExpense = function(id)
 
         loadDashboard();
         // refresh dashboard cards
+
+        loadCategoryChart();
+        //refresh chart
     })
 
     .catch(error =>
@@ -248,3 +254,59 @@ window.deleteExpense = function(id)
         console.log(error);
     });
 }
+
+//creating pie chart , from summary api from backend
+ function loadCategoryChart()
+ {
+    fetch("https://localhost:7178/api/Expense/summary" , 
+        {
+            method: "GET",
+            headers:{
+                "Authorization":`Bearer ${token}`
+            }
+        })
+        .then(response => response.json())
+        .then(summary => 
+        {
+            console.log(summary);
+
+            const labels = summary.map(item => item.categoryName);
+
+            const amounts = summary.map(item => item.totalSpent);
+
+            new Chart(document.getElementById("categoryChart"),
+            {
+                type:"pie",
+                data:
+                {
+                    labels: labels,
+                    datasets:
+                    [
+                        {
+                            data:amounts
+                        }
+
+                    ]
+
+                },
+                //controls appearance and behaviour 
+                options:
+                {
+                    //resizes automatically 
+                    responsive:true,
+                    plugins:
+                    {
+                        //tells what label is of what color
+                        legend:
+                        {
+                            position:"bottom"
+                        }
+                    }
+
+                }
+
+            });
+        }).catch(error => {console.log(error);});
+            
+    }
+loadCategoryChart();

@@ -14,6 +14,9 @@ if (!token)
 const firstName = localStorage.getItem("firstName");
 // gets logged in user's name
 
+//refresh category 
+let categoryChart = null;
+
 document.getElementById("userName").innerText = firstName;
 // inserts name into html
 
@@ -104,11 +107,17 @@ function loadExpenses()
         tableBody.innerHTML = "";
         // clear old rows
 
+        tableBody.innerHTML = 
+        `<tr>
+            <td colspan="5" class="text-center"> Loading recent expenses... </td>
+        </tr>
+        `;
+
         if(data.length === 0){
             tableBody.innerHTML = 
                     `
                     <tr>
-                        <td colspan="4" class="text-center text-muted"> NO EXPENSES YET
+                        <td colspan="5" class="text-center text-muted"> NO EXPENSES YET
                         </td>
                     </tr>    
                     `;
@@ -156,6 +165,10 @@ loadExpenses();
 document.getElementById("addExpenseButton")
 .addEventListener("click", function ()
 {
+    const addExpenseButton = document.getElementById("addExpenseButton");
+    addExpenseButton.disabled = true;
+    addExpenseButton.textContent = "Saving..."
+
     const description =
     document.getElementById("description").value;
 
@@ -207,13 +220,21 @@ document.getElementById("addExpenseButton")
         loadCategoryChart();
         //refresh chart
 
+        loadBudgetAlerts();
+        //refresh alerts
+
         document.getElementById("description").value = "";
         document.getElementById("amount").value = "";
         // clear inputs
+
+        addExpenseButton.disabled = false;
+        addExpenseButton.textContent = "Add Expense"
     })
 
     .catch(error =>
     {
+        addExpenseButton.disabled = false;
+        addExpenseButton.textContent = "Add Expense";
         console.log(error);
     });
 });
@@ -221,6 +242,11 @@ document.getElementById("addExpenseButton")
 
 window.deleteExpense = function(id)
 {
+    const confirmed = confirm("Delete this expense?");
+    if (!confirmed)
+    {
+        return;
+    }
     fetch(`https://localhost:7178/api/Expense/${id}`,
     {
         method: "DELETE",
@@ -247,6 +273,9 @@ window.deleteExpense = function(id)
 
         loadCategoryChart();
         //refresh chart
+
+        loadBudgetAlerts();
+        //refresh alerts
     })
 
     .catch(error =>
@@ -274,7 +303,13 @@ window.deleteExpense = function(id)
 
             const amounts = summary.map(item => item.totalSpent);
 
-            new Chart(document.getElementById("categoryChart"),
+            if(categoryChart !== null)
+            {
+                categoryChart.destroy();
+                // desstroying old  chart before creating new 
+            }
+
+            categoryChart =  new Chart(document.getElementById("categoryChart"),
             {
                 type:"pie",
                 data:
@@ -310,3 +345,62 @@ window.deleteExpense = function(id)
             
     }
 loadCategoryChart();
+
+function loadBudgetAlerts()
+{
+    fetch("https://localhost:7178/api/Budget",
+        {
+            method:"GET",
+            headers:
+            {
+                "Authorization":`Bearer ${token}`
+            }
+        })
+        .then(response => response.json())
+        .then(budgets => 
+        {
+            console.log(budgets);
+
+            const container = document.getElementById("budgetAlerts");
+            container.innerHTML = "";
+
+            //budgets only that has some warning 
+            const warnings = budgets.filter(b => b.warningMessage !== ""); 
+
+            if(warnings.length == 0)
+            {
+                container.innerHTML =
+                `
+                    <div class="alert alert-success"> BUDGETS LIMIT IS NOT YET EXCEEDED , YOU CAN SPEND MORE</div>
+                `;
+                return;
+            }
+
+            warnings.forEach(budget =>
+            {
+                let alertType = "warning";
+
+                if(budget.isExceeded)
+                {
+                    alertType = "danger";
+                }
+
+                container.innerHTML += 
+                `
+                <div class="alert alert-${alertType}"> 
+                    <strong>${budget.categoryName}</strong>
+                    -
+                    ${budget.warningMessage}
+                    <br>
+                    Spent:Rs.${budget.spentAmount} 
+                    <br>
+                    Remaining:Rs${budget.remainingAmount}
+                
+                </div>
+                `;
+            });
+        })
+        .catch(error => {console.log(error);});
+}
+
+loadBudgetAlerts();

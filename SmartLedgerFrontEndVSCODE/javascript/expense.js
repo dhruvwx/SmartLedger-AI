@@ -83,6 +83,24 @@ function loadExpenses(page = 1)
             document.getElementById("pageNumber").textContent = `Page ${currentPage}`;
 
             const tableBody = document.getElementById("expenseTableBody");
+            tableBody.innerHTML = 
+            `
+            <tr>
+              <td colspan="5" class="text-center"> Loading Expenses... </td>
+            </tr>
+            `;
+
+            if(expenses.length === 0)
+            {
+              tableBody.innerHTML =
+              `
+              <tr>
+              <td colspan="5" class="text-center text-muted"> No Expenses Found </td>
+              </tr>
+              `;
+              return;
+            }
+
             tableBody.innerHTML = "";
 
             expenses.forEach(expense =>

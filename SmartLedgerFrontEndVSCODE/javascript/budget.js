@@ -41,6 +41,10 @@
   document.getElementById("saveBudgetButton")
   .addEventListener("click", function()
   {
+    const saveButton = document.getElementById("saveBudgetButton");
+    saveButton.disabled = true;
+    saveButton.textContent = "Saving...";
+
     const amount = document.getElementById("budgetAmount").value;
     const month = document.getElementById("month").value;
     const year = document.getElementById("year").value;
@@ -123,10 +127,29 @@ function loadBudgets()
           {
             allBudgets = budgets;
             const tableBody = document.getElementById("budgetTableBody");
+
+            tableBody.innerHTML = 
+            `
+            <tr>
+              <td colspan="5" class="text-center"> Loading Budgets... </td>
+            </tr>
+            `;
+          
             tableBody.innerHTML="";
 
             budgets.forEach(budget => 
               {
+                if(budgets.length === 0)
+                {
+                  tableBody.innerHTML = 
+                  `
+                  <tr>
+                    <td colspan="5" class="text-center text-muted"> No Budgets Created Yet </td>
+                  </tr>
+                  `;
+                  return;
+                }
+
                 const row = document.createElement("tr");
                 row.innerHTML = 
                             `

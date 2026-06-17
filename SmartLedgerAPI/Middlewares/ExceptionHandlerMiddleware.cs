@@ -29,7 +29,6 @@ namespace SmartLedgerAPI.Middlewares
                 logger.LogError(ex , ex.Message);
 
                 httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
                 httpContext.Response.ContentType = "application/json";
 
                 var errorResponseObject = new

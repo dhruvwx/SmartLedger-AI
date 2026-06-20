@@ -13,7 +13,6 @@ namespace APILibrary.Services.Repository
 {
     public class ExpenseRepository : IExpenseRepository
     {
-
         private readonly SmartLedgerDbContext db;
         public ExpenseRepository(SmartLedgerDbContext db)
         {

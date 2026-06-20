@@ -12,7 +12,7 @@ let pageSize = 5;
 
 function loadCategories()
 {
-  fetch("https://localhost:7178/api/Category" , 
+  fetch(`${BASE_URL}/Category` , 
     {
       method: "GET",
       headers: 
@@ -20,9 +20,20 @@ function loadCategories()
         "Authorization":`Bearer ${token}`
       }
      })
-     .then(response => response.json())
+     .then(response => 
+      {
+        if(!handleUnauthoized(response))
+        {
+          return;
+        }
+        return response.json();
+      })
      .then(categories => 
       {
+        if(!categories)
+        {
+          return;
+        }
         const filterDropdown = document.getElementById("filterCategory");
 
         categories.forEach(category =>
@@ -47,7 +58,7 @@ function loadExpenses(page = 1)
     const sortBy = document.getElementById("sortBy").value;
     const sortOrder = document.getElementById("sortOrder").value;
   
-    let url = `https://localhost:7178/api/Expense?pageNo=${currentPage}&pageSize=${pageSize}`;
+    let url = `${BASE_URL}/Expense?pageNo=${currentPage}&pageSize=${pageSize}`;
     if(categoryId)
       {
         url += `&categoryId=${categoryId}`;
@@ -75,9 +86,19 @@ function loadExpenses(page = 1)
           "Authorization": `Bearer ${token}`
         }
       })
-      .then(response => response.json())
+      .then(response => {
+        if(!handleUnauthoized(response))
+        {
+          return;
+        }
+        return response.json();
+      })
       .then(expenses =>
           {
+            if(!expenses)
+        {
+          return;
+        }
             console.log(expenses);
             allExpenses = expenses;
             document.getElementById("pageNumber").textContent = `Page ${currentPage}`;
@@ -127,6 +148,10 @@ loadExpenses();
 
 document.getElementById("saveExpenseButton").addEventListener("click" , function()
     {
+      const saveButton = document.getElementById("saveExpenseButton");
+      saveButton.disabled = true;
+      saveButton.textContent = "Saving...";
+
       const description = document.getElementById("description").value;
       const amount = document.getElementById("amount").value;
       const date = document.getElementById("date").value;
@@ -148,11 +173,11 @@ document.getElementById("saveExpenseButton").addEventListener("click" , function
         console.log(expenseData);
 
 
-let url = "https://localhost:7178/api/Expense";
+let url = `${BASE_URL}/Expense`;
 let httpMethod = "POST";
           if(editingExpenseId !== null)
             {
-              url = `https://localhost:7178/api/Expense/${editingExpenseId}`;
+              url = `${BASE_URL}/Expense/${editingExpenseId}`;
               httpMethod = "PUT";
 
              }
@@ -193,9 +218,16 @@ let httpMethod = "POST";
                     document.getElementById("saveExpenseButton").textContent = "Save Expense";
 
                     loadExpenses();
+
+                    saveButton.disabled = false;
+                    saveButton.textContent = "Save Expense";
                 }
            })
-        .catch(error => {console.log(error);});
+        .catch(error => {
+          console.log(error);
+          saveButton.disabled = false;
+          saveButton.textContent = "Save Expense";
+        });
 
     }); 
 
@@ -211,7 +243,7 @@ let httpMethod = "POST";
             return;
           }
 
-        fetch(`https://localhost:7178/api/Expense/${expenseId}` ,
+        fetch(`${BASE_URL}/Expense/${expenseId}` ,
           {
             method: "DELETE",
             headers: {

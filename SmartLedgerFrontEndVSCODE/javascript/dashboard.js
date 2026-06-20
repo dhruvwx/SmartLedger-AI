@@ -37,7 +37,7 @@ function loadDashboard()
 {
     // function for dashboard api
 
-    fetch("https://localhost:7178/api/Expense/dashboard",
+    fetch(`${BASE_URL}/Expense/dashboard`,
     {
         method: "GET",
 
@@ -49,8 +49,14 @@ function loadDashboard()
         }
     })
 
-    .then(response => response.json())
-
+    .then(response => 
+    {
+        if(!handleUnauthoized(response))
+        {
+          return;
+        }
+        return response.json();
+    })
     .then(data =>
     {
         console.log(data);
@@ -81,7 +87,7 @@ function loadExpenses()
 {
     // get all expenses api
 
-    fetch("https://localhost:7178/api/Expense?pageNo=1&pageSize=5&sortBy=date&sortOrder=desc",
+    fetch(`${BASE_URL}/Expense?pageNo=1&pageSize=5&sortBy=date&sortOrder=desc`,
     {
         method: "GET",
 
@@ -93,10 +99,20 @@ function loadExpenses()
         }
     })
 
-    .then(response => response.json())
-
+    .then(response => 
+        {
+            if(!handleUnauthoized(response))
+                {
+                    return;
+                }
+            return response.json();
+        })
     .then(data =>
     {
+        if(!data)
+        {
+            return;
+        }
         console.log(data);
         // see api response
 
@@ -175,7 +191,7 @@ document.getElementById("addExpenseButton")
     const amount =
     document.getElementById("amount").value;
 
-    fetch("https://localhost:7178/api/Expense",
+    fetch(`${BASE_URL}/Expense`,
     {
         method: "POST",
 
@@ -247,7 +263,7 @@ window.deleteExpense = function(id)
     {
         return;
     }
-    fetch(`https://localhost:7178/api/Expense/${id}`,
+    fetch(`${BASE_URL}/Expense/${id}`,
     {
         method: "DELETE",
 
@@ -287,16 +303,27 @@ window.deleteExpense = function(id)
 //creating pie chart , from summary api from backend
  function loadCategoryChart()
  {
-    fetch("https://localhost:7178/api/Expense/summary" , 
+    fetch(`${BASE_URL}/Expense/summary` , 
         {
             method: "GET",
             headers:{
                 "Authorization":`Bearer ${token}`
             }
         })
-        .then(response => response.json())
+        .then(response => 
+            {
+                if(!handleUnauthoized(response))
+                {
+                    return;
+                }
+                response.json()
+            })
         .then(summary => 
         {
+            if(!summary)
+        {
+            return;
+        }
             console.log(summary);
 
             const labels = summary.map(item => item.categoryName);
@@ -348,7 +375,7 @@ loadCategoryChart();
 
 function loadBudgetAlerts()
 {
-    fetch("https://localhost:7178/api/Budget",
+    fetch(`${BASE_URL}/Budget`,
         {
             method:"GET",
             headers:
@@ -356,9 +383,20 @@ function loadBudgetAlerts()
                 "Authorization":`Bearer ${token}`
             }
         })
-        .then(response => response.json())
+        .then(response => 
+            {
+        if(!handleUnauthoized(response))
+        {
+          return;
+        }
+        return response.json();
+            })
         .then(budgets => 
         {
+            if(!budgets)
+        {
+            return;
+        }
             console.log(budgets);
 
             const container = document.getElementById("budgetAlerts");

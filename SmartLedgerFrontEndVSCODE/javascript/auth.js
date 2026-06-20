@@ -17,7 +17,7 @@ loginForm.addEventListener("submit", function (event)
     const password = document.getElementById("password").value;
     // gets current password textbox value
 
-    fetch("https://localhost:7178/api/Auth/Login", {
+    fetch(`${BASE_URL}/Auth/Login`, {
     // calling login api endpoint
 
     method: "POST",

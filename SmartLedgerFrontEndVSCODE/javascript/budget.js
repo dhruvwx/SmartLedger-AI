@@ -9,16 +9,28 @@
 
  function loadCategories()
   {
-    fetch("https://localhost:7178/api/Category" , { //object
+    fetch(`${BASE_URL}/Category` , { //object
 
       method:"GET",
       headers: {
                   "Authorization":`Bearer ${token}`
                 }
     })
-    .then(response => response.json())
+    .then(response => 
+      {
+        if(!handleUnauthoized(response))
+        {
+          return;
+        }
+        return response.json();
+      })
     .then(categories => 
-      {const categoryDropdown = document.getElementById("category");
+      {
+        if(!categories)
+        {
+          return;
+        }
+        const categoryDropdown = document.getElementById("category");
                      console.log(categories);
 
 
@@ -59,12 +71,12 @@
 };
 
 console.log(budgetData);
-let url = "https://localhost:7178/api/Budget";
+let url = `${BASE_URL}/Budget`;
 let httpMethod = "POST";
 
 if (editingBudgetId !== null)
   {
-    url = `https://localhost:7178/api/Budget/${editingBudgetId}`;
+    url = `${BASE_URL}/Budget/${editingBudgetId}`;
     httpMethod = "PUT";
 
 }
@@ -85,7 +97,7 @@ if (editingBudgetId !== null)
        console.log(errortext);
 
                         if(response.ok)
-                        {
+                        {  
 
                           if(editingBudgetId === null)
                             {
@@ -102,29 +114,45 @@ if (editingBudgetId !== null)
                            document.getElementById("category").value = "";
 
                            editingBudgetId = null;
-                          document.getElementById("saveBudgetButton").textContent = "Save Budget";
+                           saveButton.disabled = false;
+                          saveButton.textContent = "Save Budget";
 
                            loadBudgets(); //refreshes table
                         }
 
   })
-    .catch(error => {console.log(error)})
+    .catch(error => {
+      console.log(error);
+      saveButton.disabled = false;
+      saveButton.textContent = "Save Budget";
+    })
 });
 
 
 //loadBudgets
 function loadBudgets()
 {
-  fetch("https://localhost:7178/api/Budget" , 
+  fetch(`${BASE_URL}/Budget` , 
     {
       method: "GET",
       headers:{
                 "Authorization":`Bearer ${token}`
               }
      })
-     .then(response => response.json())
+     .then(response => 
+      {
+        if(!handleUnauthoized(response))
+        {
+          return;
+        }
+        return response.json();
+      })
      .then(budgets => 
           {
+            if(!budgets)
+            {
+              return;
+            }
             allBudgets = budgets;
             const tableBody = document.getElementById("budgetTableBody");
 
@@ -137,9 +165,7 @@ function loadBudgets()
           
             tableBody.innerHTML="";
 
-            budgets.forEach(budget => 
-              {
-                if(budgets.length === 0)
+             if(budgets.length === 0)
                 {
                   tableBody.innerHTML = 
                   `
@@ -150,6 +176,8 @@ function loadBudgets()
                   return;
                 }
 
+            budgets.forEach(budget => 
+              {
                 const row = document.createElement("tr");
                 row.innerHTML = 
                             `
@@ -186,7 +214,7 @@ function deleteBudget(budgetId)
       const confirmed = confirm("Are you sure you want to delete this budget?");
       if(!confirmed){ return; }
 
-      fetch(`https://localhost:7178/api/Budget/${budgetId}` , 
+      fetch(`${BASE_URL}/Budget/${budgetId}` , 
         {
           method:"DELETE",
           headers:

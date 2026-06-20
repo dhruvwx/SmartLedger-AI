@@ -22,7 +22,7 @@ button.innerText = "Registering...";
     document.getElementById("password").value;
 
 
-    fetch("https://localhost:7178/api/Auth/Register",
+    fetch(`${BASE_URL}/Auth/Register`,
     {
         method: "POST",
 
@@ -45,7 +45,11 @@ button.innerText = "Registering...";
     {
         if (!response.ok)
         {
-            throw new Error("Registration Failed");
+            return response.text()
+            .then(errorMsg =>
+            {
+                throw new Error(errorMsg);
+            });  
         }
 
         alert("Registration Successful");
@@ -62,6 +66,7 @@ button.innerText = "Register";
     button.disabled = false;
     button.innerText = "Register";
 
+    alert(error.message);
     console.log(error);
 });
 });

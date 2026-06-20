@@ -27,25 +27,29 @@
                         type="text"
                         id="firstName"
                         class="form-control mb-3"
-                        placeholder="First Name">
+                        placeholder="First Name"
+                        required>
 
                     <input
                         type="text"
                         id="lastName"
                         class="form-control mb-3"
-                        placeholder="Last Name">
+                        placeholder="Last Name"
+                        required>
 
                     <input
                         type="email"
                         id="email"
                         class="form-control mb-3"
-                        placeholder="Email">
+                        placeholder="Email"required>
 
                     <input
                         type="password"
                         id="password"
                         class="form-control mb-3"
-                        placeholder="Password">
+                        placeholder="Password"
+                        required
+                        minlength="6">
 
                     <button
                         class="btn btn-success w-100"
@@ -71,6 +75,7 @@
 
     </div>
 
+    <script src="javascript/api.js"></script>
     <script src="javascript/register.js"></script>
 
 </body>

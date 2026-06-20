@@ -53,13 +53,18 @@
 
       <h2>Budget Management</h2>
 
-      <input type="number" id="budgetAmount" class="form-control mb-3" placeholder="Monthly Budget Amount">
+      <input type="number" id="budgetAmount" class="form-control mb-3" placeholder="Monthly Budget Amount"
+      min="0.01"
+      step="0.01"
+      required>
 
-      <input type="number" id="month" class="form-control mb-3" placeholder="Month">
+      <input type="number" id="month" class="form-control mb-3" placeholder="Month"
+      required>
 
-      <input type="number" id="year" class="form-control mb-3" placeholder="Year">
+      <input type="number" id="year" class="form-control mb-3" placeholder="Year"
+      required>
 
-      <select id="category" class="form-select mb-3">
+      <select id="category" class="form-select mb-3" required>
         <option value="">Select Category</option>
       </select>
 
@@ -84,6 +89,8 @@
      </div>
   </div>
   
+  <script src="javascript/api.js"></script>
+  <script src="javascript/common.js"></script>
   <script src="javascript/budget.js"></script>
 </body>
 </html>

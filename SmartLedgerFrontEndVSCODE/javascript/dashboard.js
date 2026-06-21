@@ -140,6 +140,8 @@ function loadExpenses()
                     return;
         }
 
+        tableBody.innerHTML = "";
+
         data.forEach(expense =>
         {
             // loop through each expense
@@ -316,7 +318,7 @@ window.deleteExpense = function(id)
                 {
                     return;
                 }
-                response.json()
+                return response.json()
             })
         .then(summary => 
         {

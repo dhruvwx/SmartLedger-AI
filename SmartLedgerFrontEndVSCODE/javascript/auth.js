@@ -40,7 +40,15 @@ loginForm.addEventListener("submit", function (event)
     })
 })
 
-.then(response => response.json())
+.then(async response => 
+    {
+        if(!response.ok)
+        {
+            const errorMsg = await response.text();
+            throw new Error(errorMsg);
+        }
+       return response.json()
+    })
 /*
 response comes from backend
 
@@ -70,12 +78,14 @@ converts response → readable object
     // temporary success message
 
 })
-
-})
-
 .catch(error => {
 
+    alert(error.message);
     console.error("FULL ERROR:", error);
 // gives better debugging
 
 });
+
+})
+
+

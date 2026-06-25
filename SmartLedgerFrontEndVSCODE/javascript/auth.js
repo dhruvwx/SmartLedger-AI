@@ -3,9 +3,8 @@ const loginForm = document.getElementById("loginForm");
 
 loginForm.addEventListener("submit", function (event) 
     {
-
+        
     // listens when login form submits
-
     event.preventDefault();
     // stops page refresh
     // default HTML form refreshes page

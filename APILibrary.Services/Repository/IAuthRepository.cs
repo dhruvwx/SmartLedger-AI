@@ -10,8 +10,12 @@ namespace APILibrary.Services.Interface
 {
     public interface IAuthRepository
     {
-        Task<LoginRegisterResponseDTO?> RegisterAsync(RegisterDto dto);
+        //Task<LoginRegisterResponseDTO?> RegisterAsync(RegisterDto dto);  -- its business logic now in Service 
 
         Task<User?> GetUserByEmailIdAsync(string email);
+
+        Task<User> AddUserToDatabase(User user);
+
+        Task<int> SaveChangesAsync();
     }
 }

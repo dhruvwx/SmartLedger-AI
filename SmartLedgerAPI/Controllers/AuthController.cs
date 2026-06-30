@@ -3,6 +3,7 @@ using APILibrary.Data.Models;
 using APILibrary.Services.DTOs.Auth;
 using APILibrary.Services.Interface;
 using APILibrary.Services.Repository;
+using APILibrary.Services.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -21,17 +22,25 @@ namespace SmartLedgerAPI.Controllers
         //Dipendency injection -- creats a variable for database access
         //private readonly SmartLedgerDbContext db;
 
-        private readonly IjwtTokenRepository tokenRepository;
+        ///====-- in service now====///
+        //private readonly IjwtTokenRepository tokenRepository; 
+        //private readonly IAuthRepository authRepository;
+        //private readonly IMapper mapper;
+
+
+        private readonly IAuthService authService;
         private readonly ILogger<AuthController> logger;
-        private readonly IAuthRepository authRepository;
-        private readonly IMapper mapper;
-        public AuthController(/*SmartLedgerDbContext db,*/ 
-            IAuthRepository authRepository , IMapper mapper , IjwtTokenRepository tokenRepository , ILogger<AuthController> logger)
+        public AuthController(/*SmartLedgerDbContext db,*/
+            IAuthService authService , ILogger<AuthController> logger 
+            /*IMapper mapper , IjwtTokenRepository tokenRepository*/ )
         {
             //this.db = db;
-            this.authRepository = authRepository;
-            this.mapper = mapper;
-            this.tokenRepository = tokenRepository;
+            //this.mapper = mapper;
+            //this.tokenRepository = tokenRepository;
+
+
+            this.authService = authService;
+            
             this.logger = logger;
         }
 
@@ -41,7 +50,7 @@ namespace SmartLedgerAPI.Controllers
         [Route("Register")]
         public async Task<IActionResult> Register(RegisterDto dto)
         {
-            var response = await authRepository.RegisterAsync(dto);
+            var response = await authService.RegisterAsync(dto);
             if (ModelState.IsValid)
             {
                 if(response == null)
@@ -73,26 +82,40 @@ namespace SmartLedgerAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            var existingUser = await authRepository.GetUserByEmailIdAsync(dto.Email);
-            if (existingUser == null)
+            var response = await authService.LoginAsync(dto);
+            if (response == null)
             {
                 logger.LogWarning($"{dto.Email} does not exist");
                 return BadRequest(dto.Email + " does not exist");
             }
 
-            var checkPassword = BCrypt.Net.BCrypt.Verify(dto.Password, existingUser.PasswordHash); //returns bool --(raw pass , hash pass)
-            if (checkPassword == false)
-            {
-                logger.LogWarning($"Failed login for {dto.Email} incorrect password");
-                return BadRequest("Incorrect Password");
-            }
-            //return tokens
-            string token = tokenRepository.CreateJwtToken(existingUser);
+
+
+
+
+            //var checkPassword = BCrypt.Net.BCrypt.Verify(dto.Password, existingUser.PasswordHash); //returns bool --(raw pass , hash pass)
+            //if (checkPassword == false)
+            //{
+            //    logger.LogWarning($"Failed login for {dto.Email} incorrect password");
+            //    return BadRequest("Incorrect Password");
+            //}
+            ////return tokens
+            //string token = tokenRepository.CreateJwtToken(existingUser);
+
+
+
+
 
             logger.LogInformation($"{dto.Email} logined successfully");
 
-            var existingUserDtoResponse = mapper.Map<LoginRegisterResponseDTO>(existingUser);
-            existingUserDtoResponse.Token = token;
+
+
+
+            //var existingUserDtoResponse = mapper.Map<LoginRegisterResponseDTO>(existingUser);
+            //existingUserDtoResponse.Token = token;
+
+
+
 
             //var ExistingUserDtoResponse = new LoginRegisterResponseDTO
             //{
@@ -102,9 +125,14 @@ namespace SmartLedgerAPI.Controllers
             //    Role = existingUser.Role
             //};
 
-            return Ok(existingUserDtoResponse);
+
+
+            return Ok(response);
 
         }
+
+
+
 
         [HttpGet]
         [Route("me")]
@@ -116,6 +144,9 @@ namespace SmartLedgerAPI.Controllers
 
             return Ok(new { Email = email, Role = role }); // output is json so not E but email -- javascript uses camelCase
         }
+
+
+
 
 
         [HttpGet]

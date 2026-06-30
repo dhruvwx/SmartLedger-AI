@@ -9,7 +9,7 @@ namespace SmartLedgerAPI.AutoMapper
 {
     public class MappingProfile : Profile
     {
-        public MappingProfile()
+        public MappingProfile() 
         {
             CreateMap<User, LoginRegisterResponseDTO>();
 

@@ -4,6 +4,7 @@ using APILibrary.Services.AI.Repository;
 using APILibrary.Services.AI.Services;
 using APILibrary.Services.Interface;
 using APILibrary.Services.Repository;
+using APILibrary.Services.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -95,8 +96,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 //Injecting AI Repository
 builder.Services.AddHttpClient<IExpenseCategorizerByAi, ExpenseCategorizerByAi>();
 
-//**********Injecting repository--whenever IRepository is requested call Repository class runs
 
+
+//====INJECTING SERVICES====
+builder.Services.AddScoped<IAuthService , AuthService>();
+builder.Services.AddScoped<IJwtService , JwtService>();
+
+
+//**********Injecting repository--whenever IRepository is requested call Repository class runs
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IjwtTokenRepository, JwtTokenRepository>();
 builder.Services.AddScoped<IExpenseRepository , ExpenseRepository>();

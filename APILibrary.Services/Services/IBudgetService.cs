@@ -12,7 +12,7 @@ namespace APILibrary.Services.Services
     {
         Task<BudgetResponseDTO> CreateBudgetAsync(CreateBudgetDTO dto, int userId);
         Task<List<BudgetResponseDTO>> GetBudgetsAsync(int userId);
-        Task<BudgetResponseDTO> UpdateResponse(int userId , int  budgetId , UpdateBudgetDTO dto);
-        Task<BudgetResponseDTO> DeleteBudgetAsync(int userId , int budgetId);
+        Task<BudgetResponseDTO?> UpdateBudgetAsync(int userId , int  budgetId , UpdateBudgetDTO dto);
+        Task<BudgetResponseDTO?> DeleteBudgetAsync(int userId , int budgetId);
     }
 }

@@ -23,6 +23,13 @@ namespace APILibrary.Services.Repository
         }
 
 
+
+        /*================================================================================================
+        |                                                                                                 |
+        |  ///=== THE FOLLOWING CODE ARE USED INTERNALLY ONLY SO NO NEED TO PUT IN SERVICE LAYER===///    |
+        |                                                                                                 |
+        |================================================================================================*/ 
+
         //this is needed beacuse we want to know what is the name of category , if business we make GST applicable -- use in expense controller
         public async Task<Category> GetCategoryByIdAsync(int categoryId)
         {

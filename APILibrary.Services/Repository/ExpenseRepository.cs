@@ -18,6 +18,12 @@ namespace APILibrary.Services.Repository
         {
             this.db = db;
         }
+
+
+
+
+
+
         public async Task<Expense> CreateExpenseAsync(Expense expense)
         {
             await db.Expenses.AddAsync(expense);
@@ -25,7 +31,13 @@ namespace APILibrary.Services.Repository
             return expense;
         }
 
-        public async Task<Expense> DeleteExpenseAsync(int userId, int expenseId)
+
+
+
+
+
+
+        public async Task<Expense?> DeleteExpenseAsync(int userId, int expenseId)
         {
             var selectedExpense = await db.Expenses.Include(e => e.Category).FirstOrDefaultAsync(e => e.UserId == userId && e.Id == expenseId);
             if (selectedExpense == null)
@@ -40,6 +52,14 @@ namespace APILibrary.Services.Repository
             }
 
         }
+
+
+
+
+
+
+
+
 
         // optional category -- filters int? categoryId , int? month , decimal? minAmount , decimal maxAmount
 
@@ -97,24 +117,13 @@ namespace APILibrary.Services.Repository
 
         }
 
-        public async Task<DashboardResponseDTO> GetDashboardAsync(int userId)
-        {
-            var userExpenses = await db.Expenses.Where(e => e.UserId == userId).Include(e => e.Category).ToListAsync();
+       
+        
 
-            var dashboard = new DashboardResponseDTO();
 
-            dashboard.TotalSpent = userExpenses.Sum(e => e.Amount);
-            dashboard.TotalExpenses = userExpenses.Count();
-            dashboard.MonthlySpent = userExpenses
-                .Where(e => e.Date.Month == DateTime.UtcNow.Month)
-                .Sum(e => e.Amount);
-            dashboard.TopCategory = userExpenses
-                .GroupBy(e => e.Category.CategoryName)
-                .OrderByDescending(g => g.Sum(e => e.Amount))
-                .Select(g => g.Key).FirstOrDefault()?? "NO EXPENSES";
 
-           return dashboard;
-        }
+
+
 
         public async Task<Expense?> UpdateExpensesAsync(int userId, int expenseId, Expense updatedExpense)
         {
@@ -130,34 +139,76 @@ namespace APILibrary.Services.Repository
             expenseOfUser.IsGstApplicable = updatedExpense.IsGstApplicable;
 
 
-            var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == updatedExpense.CategoryId);
-            if (category.CategoryName == "Business")
-            {
-                expenseOfUser.IsGstApplicable = true;
-            }
-            else
-            {
-                expenseOfUser.IsGstApplicable = false;
-            }
 
-            db.SaveChanges();
+            //===== IT IS IN SERVICE LAYER============//
+
+            //var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == updatedExpense.CategoryId);
+            //if (category.CategoryName == "Business")
+            //{
+            //    expenseOfUser.IsGstApplicable = true;
+            //}
+            //else
+            //{
+            //    expenseOfUser.IsGstApplicable = false;
+            //}
+
+
+
+            await db.SaveChangesAsync();
             return expenseOfUser;
         }
 
-        async Task<List<ExpenseSummaryDTO>> IExpenseRepository.GetExpenseSummaryAsync(int userId)
-        {
-          var categoryWiseExpenseList = await db.Expenses
-                .Where(e => e.UserId == userId)
-                .Include(e => e.Category)
-                .GroupBy(e => e.Category.CategoryName)
-                .Select(g => new ExpenseSummaryDTO
-                {
-                    CategoryName = g.Key,
-                    TotalSpent = g.Sum(e => e.Amount)
-                })
-                .ToListAsync();
 
-            return categoryWiseExpenseList;
+
+
+
+
+
+        //async Task<List<ExpenseSummaryDTO>> IExpenseRepository.GetExpenseSummaryAsync(int userId)
+        //{
+        //  var categoryWiseExpenseList = await db.Expenses
+        //        .Where(e => e.UserId == userId)
+        //        .Include(e => e.Category)
+        //        .GroupBy(e => e.Category.CategoryName)
+        //        .Select(g => new ExpenseSummaryDTO
+        //        {
+        //            CategoryName = g.Key,
+        //            TotalSpent = g.Sum(e => e.Amount)
+        //        })
+        //        .ToListAsync();
+
+        //    return categoryWiseExpenseList;
+        //}
+
+
+
+
+
+
+
+
+
+
+        public async Task<decimal> GetAmountSpentBySingleBudgetOfCategory(int userId, int categoryId, int month, int year)
+        {
+            var amountSpent = await db.Expenses.Where(e => 
+                                                            e.UserId == userId && 
+                                                            e.CategoryId == categoryId && 
+                                                            e.Date.Month == month && 
+                                                            e.Date.Year == year)
+                                                .SumAsync(e => e.Amount);
+
+            return amountSpent;
+        }
+
+        public async Task<List<Expense>> GetExpensesForDashboardAndSummaryAsync(int userId)
+        {
+            var expenses = await db.Expenses.Where(e => e.UserId == userId)
+                                            .Include(e => e.Category).ToListAsync();
+
+            return expenses;
         }
     }
 }
+
+

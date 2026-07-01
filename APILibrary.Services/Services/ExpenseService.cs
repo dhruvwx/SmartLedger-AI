@@ -75,6 +75,12 @@ namespace APILibrary.Services.Services
             var expense = mapper.Map<Expense>(dto);
             expense.CategoryId = category.Id;
 
+            if(category.CategoryName.Trim() == "Business")
+            {
+                expense.IsGstApplicable = true;
+            }
+            else { expense.IsGstApplicable = false; }
+
             var updatedExpense = await expenseRepo.UpdateExpensesAsync(userId, expenseId, expense);
 
             if(updatedExpense == null) { return null; }
@@ -98,17 +104,34 @@ namespace APILibrary.Services.Services
 
 
 
+
         public async Task<DashboardResponseDTO> GetDashboardAsync(int userId)
         {
-            return await expenseRepo.GetDashboardAsync(userId);
+            var expenses = await expenseRepo.GetExpensesForDashboardAndSummaryAsync(userId);
+
+            var dashboard = new DashboardResponseDTO();
+
+            dashboard.TotalSpent = expenses.Sum(e => e.Amount);
+
+            dashboard.MonthlySpent = expenses.Where(e => e.Date.Month == DateTime.UtcNow.Month).Sum(e => e.Amount);
+
+            dashboard.TotalExpenses = expenses.Count();
+
+            dashboard.TopCategory = expenses.GroupBy(e => e.Category.CategoryName)
+                                            .OrderByDescending(e => e.Sum(e => e.Amount))
+                                            .Select(g => g.Key).FirstOrDefault() ?? "No Expenses";
+            return dashboard;
         }
 
 
 
-        
+
 
         public async Task<List<ExpenseSummaryDTO>> GetExpenseSummaryAsync(int userId)
         {
+            var expenses = await expenseRepo.GetExpensesForDashboardAndSummaryAsync(userId);
+
+
             return await expenseRepo.GetExpenseSummaryAsync(userId);
         }
 

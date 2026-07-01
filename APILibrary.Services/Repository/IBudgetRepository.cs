@@ -11,7 +11,7 @@ namespace APILibrary.Services.Repository
     public interface IBudgetRepository
     {
         Task<Budget> CreateBudgetAsync(Budget budget);
-        Task<List<BudgetResponseDTO>> GetBudgetsAsync(int userId);
+        Task<List<Budget>> GetBudgetsAsync(int userId);
 
         Task<Budget?> UpdateBudgetAsync(int userId, int budgetId, Budget budget);
         Task<Budget?> DeleteBudgetAsync(int userId, int budgetId);

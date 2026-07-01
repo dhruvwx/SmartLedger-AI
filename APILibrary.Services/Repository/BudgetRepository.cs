@@ -38,50 +38,14 @@ namespace APILibrary.Services.Repository
             return budgetToDelete;
         }
 
-        public async Task<List<BudgetResponseDTO>> GetBudgetsAsync(int userId)
+        public async Task<List<Budget>> GetBudgetsAsync(int userId)
         {
             var budgets = await db.Budgets
                  .Where(b => b.UserId == userId)
                  .Include(b => b.Category)
                  .ToListAsync();
 
-            var response = new List<BudgetResponseDTO>();
-
-            foreach (var b in budgets)
-            {
-                var spentAmountForSingleBudget = await db.Expenses
-                                                    .Where(e => e.UserId == userId &&
-                                                    e.CategoryId == b.CategoryId &&
-                                                    e.Date.Month == b.Month &&
-                                                    e.Date.Year == b.Year).SumAsync(e => e.Amount);
-
-                string warning = "";
-                decimal percentageUsed = (spentAmountForSingleBudget / b.MonthMaxAmountLimit) * 100;
-                if(spentAmountForSingleBudget > b.MonthMaxAmountLimit)
-                {
-                    warning = "Budget Exceeded";
-                }else if(percentageUsed >= 80)
-                {
-                    warning = "80% of Budget Used";
-                }
-
-                    response.Add(new BudgetResponseDTO
-                    {
-                        MonthMaxAmountLimit = b.MonthMaxAmountLimit,
-                        SpentAmount = spentAmountForSingleBudget,
-                        RemainingAmount = b.MonthMaxAmountLimit - spentAmountForSingleBudget,
-                        IsExceeded = spentAmountForSingleBudget > b.MonthMaxAmountLimit,
-                        CategoryName = b.Category.CategoryName,
-                        WarningMessage = warning,
-
-                        BudgetId = b.Id,
-                        Month = b.Month,
-                        Year = b.Year,
-                        CategoryId = b.CategoryId
-
-                    });
-            }
-            return response;
+            return budgets;
         }
 
         public async Task<Budget?> UpdateBudgetAsync(int userId, int budgetId, Budget budget)

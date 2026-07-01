@@ -100,7 +100,10 @@ builder.Services.AddHttpClient<IExpenseCategorizerByAi, ExpenseCategorizerByAi>(
 
 //====INJECTING SERVICES====
 builder.Services.AddScoped<IAuthService , AuthService>();
-builder.Services.AddScoped<IJwtService , JwtService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IBudgetService , BudgetService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IExpenseService, ExpenseService>();
 
 
 //**********Injecting repository--whenever IRepository is requested call Repository class runs

@@ -74,10 +74,5 @@ namespace APILibrary.Services.Services
 
             return responseDto;
         }
-
-        public Task<LoginRegisterResponseDTO?> RegisterAsyc(RegisterDto dto)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -131,8 +131,14 @@ namespace APILibrary.Services.Services
         {
             var expenses = await expenseRepo.GetExpensesForDashboardAndSummaryAsync(userId);
 
+            var summary = expenses.GroupBy(e => e.Category.CategoryName)
+                                  .Select(g => new ExpenseSummaryDTO
+                                  {
+                                      CategoryName = g.Key,
+                                      TotalSpent = g.Sum(e => e.Amount)
+                                  }).ToList();
 
-            return await expenseRepo.GetExpenseSummaryAsync(userId);
+            return summary;
         }
 
         

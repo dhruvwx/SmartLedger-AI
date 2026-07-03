@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APILibrary.Data", "APILibra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APILibrary.Services", "APILibrary.Services\APILibrary.Services.csproj", "{B79A2ED6-9591-47CC-BF47-DB5E07A41F1A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartLedger.Tests", "SmartLedger.Tests\SmartLedger.Tests.csproj", "{5D069609-0EFF-4A78-A6F8-EA317F2DA1B9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartLedgerAI.Tests", "SmartLedgerAI.Tests\SmartLedgerAI.Tests.csproj", "{04F73986-208E-471B-BD4A-B24D2F7DD941}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,10 @@ Global
 		{B79A2ED6-9591-47CC-BF47-DB5E07A41F1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B79A2ED6-9591-47CC-BF47-DB5E07A41F1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B79A2ED6-9591-47CC-BF47-DB5E07A41F1A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5D069609-0EFF-4A78-A6F8-EA317F2DA1B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5D069609-0EFF-4A78-A6F8-EA317F2DA1B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5D069609-0EFF-4A78-A6F8-EA317F2DA1B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5D069609-0EFF-4A78-A6F8-EA317F2DA1B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04F73986-208E-471B-BD4A-B24D2F7DD941}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04F73986-208E-471B-BD4A-B24D2F7DD941}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04F73986-208E-471B-BD4A-B24D2F7DD941}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04F73986-208E-471B-BD4A-B24D2F7DD941}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

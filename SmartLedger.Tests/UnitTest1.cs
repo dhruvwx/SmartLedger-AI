@@ -5,7 +5,6 @@ namespace SmartLedger.Tests
         [Fact]
         public void Test1()
         {
-
         }
     }
 }

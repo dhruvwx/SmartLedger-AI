@@ -32,7 +32,7 @@ namespace APILibrary.Services.Services
 
             var newUser = new User
             {
-                FirstName = dto.FirstName,
+                FirstName = dto.FirstName, 
                 LastName = dto.LastName,
                 Email = dto.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)

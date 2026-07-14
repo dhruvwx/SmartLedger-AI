@@ -24,7 +24,7 @@ namespace APILibrary.Data.Models
 
         //AI fill the category of the expense //is nullable
         public string? AiCategoryExpense { get; set; }
-
+         
 
         // Foreign Key which user created this expense?
         public int UserId { get; set; }

@@ -175,7 +175,37 @@ namespace SmartLedgerAI.Tests.Services
                 Amount = 100
             };
 
+
+            var mockAiRepo = new Mock<IExpenseCategorizerByAi>();
+            mockAiRepo.Setup(ai => ai.CategorizeExpenseAsync(It.IsAny<string>())).ReturnsAsync("Food");
+
+
+            var mockCategoryRepo = new Mock<ICategoryRepository>();
+            mockCategoryRepo.Setup(c => c.GetCategoryByNameAsync(It.IsAny<string>())).ReturnsAsync(new Category { Id = 1, CategoryName = "Food" });
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(m => m.Map<Expense>(expenseRequestDto)).Returns(new Expense());
+
+
+            var mockExpenseRepo = new Mock<IExpenseRepository>();
+            mockExpenseRepo.Setup(e => e.CreateExpenseAsync(It.IsAny<Expense>())).ThrowsAsync(new Exception("Database Failed"));
+
+
+            var expenseService = new ExpenseService
+                (mockExpenseRepo.Object,
+                 mockCategoryRepo.Object,
+                 mockAiRepo.Object,
+                 mockMapper.Object
+                );
+
+
+            //act - assert (it works as both)
+            await Assert.ThrowsAsync<Exception>(() => expenseService.CreateExpenseAsync(expenseRequestDto, userId));  
+                
+
+
         }
 
     }
 }
+ 

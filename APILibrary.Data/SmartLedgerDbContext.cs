@@ -14,7 +14,7 @@ namespace APILibrary.Data
         {
 
         }
-
+     
 
         //DbSet are the tables
         public DbSet<User> Users { get; set; }

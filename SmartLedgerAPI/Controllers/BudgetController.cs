@@ -24,9 +24,8 @@ namespace SmartLedgerAPI.Controllers
         {
             //this.budgetRepository = budgetRepository;
             //this.mapper = mapper;
-
-            this.budgetService = budgetService;
             this.logger = logger;
+            this.budgetService = budgetService;
         }
 
 
@@ -52,8 +51,6 @@ namespace SmartLedgerAPI.Controllers
             }
 
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
-
 
 
 

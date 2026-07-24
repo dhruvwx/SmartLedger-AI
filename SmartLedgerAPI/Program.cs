@@ -116,9 +116,10 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
 
 
-//**********Injecting Mapping -- IMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+//**********Injecting Mapping -- IMapper
+
+builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
 
 

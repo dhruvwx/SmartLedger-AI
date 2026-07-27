@@ -119,7 +119,7 @@ builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
 
 //**********Injecting Mapping -- IMapper
 
-builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 
 

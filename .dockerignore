@@ -1,0 +1,10 @@
+**/bin/                           #all bin folders
+**/obj/                           #all obj folders 
+**/.vs/                           #all vs setting folders
+*.user                            #files ending with .user at root
+.git/                             #git history folder
+.github/                          #github workflow folder
+SmartLedgerAI.Tests/              #Test Project folder
+SmartLedgerFrontEndVSCODE/        #FrontEnd Project folder
+**/appsettings.Development.json   #all development config files
+*.log                             #Log files at root

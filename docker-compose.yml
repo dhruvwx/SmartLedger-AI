@@ -1,0 +1,27 @@
+  #section 1
+  version: '3.8'
+
+  #section 2 - each service one container
+  services:
+    
+    smartledger-api: #service name
+    
+      build: . #build image from docker file in the current folder 
+      container_name: smartledger-api
+      ports:
+        - "8080:80"
+      environment:
+         #framework setting - production , development , staging
+        - ASPNETCORE_ENVIRONMENT=Production
+
+        #"ConnectionStrings":"Default" - from appsetings (: = _ _)
+        - ConnectionStrings__Default=Server=sql-server,1433;Database=SmartLedgerDb;User=sa;Password=SystemAdministratorLogin@Pass;TrustServerCertficate=True
+  
+        #secrets - keys etc (never actual sectrest - comes from .env or secret manager)
+                 #~~~~ FROM APPSETTINGS.JSON ~~~~~ (: = _ _)
+        - Jwt__Key=${JWT_KEY}  #from .env
+        - Jwt__Issuer=SmartLedgerAPI #same
+        - Jwt__Audience=SmartLedgerUsers #same
+        - AISettings__ApiKey=${AI_KEY} #from .env
+        - AISettings__AIModel=  #same
+  

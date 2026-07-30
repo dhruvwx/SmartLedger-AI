@@ -85,7 +85,7 @@ namespace SmartLedgerAPI.Controllers
 
 
 
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
 
             var response = await expenseService.CreateExpenseAsync(dto, userId);

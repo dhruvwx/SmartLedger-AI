@@ -3,6 +3,7 @@ using APILibrary.Services.DTOs.Budget;
 using APILibrary.Services.Repository;
 using APILibrary.Services.Services;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -11,6 +12,7 @@ namespace SmartLedgerAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class BudgetController : ControllerBase
     {
         //private readonly IBudgetRepository budgetRepository;

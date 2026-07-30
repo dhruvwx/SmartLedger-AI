@@ -74,9 +74,20 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 //*******Inject ConnectionString
+//var connectionString = builder.Configuration["ConnectionStrings:Default"];
+var connectionString = builder.Configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Missing Connection String");
+
 builder.Services.AddDbContext<SmartLedgerDbContext>
-    (options => options.UseSqlServer(builder.Configuration.GetConnectionString("Default"),b => b.MigrationsAssembly("SmartLedgerAPI")
+    (options => options.UseSqlServer(connectionString, b => b.MigrationsAssembly("SmartLedgerAPI")
     ));
+
+
+//Required configs for authentication
+//var JwtIssuer = builder.Configuration["Jwt:Issuer"];  --good for loacal
+var jwtIssuer = builder.Configuration ["Jwt:Issuer"] ?? throw new InvalidOperationException("Missing Jwt Issuer");
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new InvalidOperationException("Missing Jwt Audience");
+var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Missing Jwt Key");
+
 
 //**********Injecting {Authentication} Jwt Token
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -86,9 +97,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ValidateAudience = true,
         ValidateIssuerSigningKey = true,
         ValidateLifetime = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))  //! tells it wont be null
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)) 
     });
 
 // INJECTING CONSTRUCTOR to use external api
@@ -118,7 +129,8 @@ builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
 
 
 //**********Injecting Mapping -- IMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+//builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddAutoMapper(config => config.AddProfile<MappingProfile>());
 
 
 

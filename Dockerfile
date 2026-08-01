@@ -8,7 +8,9 @@ COPY SmartLedgerAPI/SmartLedgerAPI.csproj SmartLedgerAPI/
 
 RUN dotnet restore "SmartLedgerAPI/SmartLedgerAPI.csproj" #READS csproj FILES AND DOWNLOAD ALL NUGET PACKAGES
 
-COPY ..
+COPY APILibrary.Data/APILibrary.Data.csproj 
+COPY APILibrary.Services/APILibrary.Services.csproj 
+COPY SmartLedgerAPI/SmartLedgerAPI.csproj 
 
 RUN dotnet publish "SmartLedgerAPI/SmartLedgerAPI.csproj" -c Release -o /app/publish
 
@@ -20,10 +22,12 @@ WORKDIR /app
 
 COPY --from=Build /app/publish . 
 
-RUN adduser --disabled-pasword --gecos"" appuser
+RUN adduser --disabled-password --gecos "" appuser
 USER appuser
 
 EXPOSE 80
+
+#health check
 
 ENTRYPOINT ["dotnet", "SmartLedgerAPI.dll"]
 

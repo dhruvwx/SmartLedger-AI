@@ -15,7 +15,7 @@
         - ASPNETCORE_ENVIRONMENT=Production
 
         #"ConnectionStrings":"Default" - from appsetings (: = _ _)
-        - ConnectionStrings__Default=Server=sql-server,1433;Database=SmartLedgerDb;User=sa;Password=SystemAdministratorLogin@Pass;TrustServerCertficate=True
+        - ConnectionStrings__Default=Server=sql-server,1433;Database=SmartLedgerDb;User=sa;Password=SystemAdministratorLogin@Pass;TrustServerCertificate=true
   
         #secrets - keys etc (never actual sectrest - comes from .env or secret manager)
                  #~~~~ FROM APPSETTINGS.JSON ~~~~~ (: = _ _)
@@ -24,4 +24,40 @@
         - Jwt__Audience=SmartLedgerUsers #same
         - AISettings__ApiKey=${AI_KEY} #from .env
         - AISettings__AIModel=  #same
+      
+      volumes:
+        - ./logs:/app/Logs
+
+      depends_on:
+        - sql-server #startup order
+ 
+      networks:
+        - app-network #connects container to app defined at bottom
+
+      restart: unless-stopped
+
+  #service 2
+    sql-server:
+      image: mcr.microsoft.com/mssql/server:2022-latest
+      container_name: smartledger-sqlserver
+      ports:
+         - "1433:1433"
+      environment:
+          ACCEPT_EULA: "Y" #END USER LICENSE AGREEMENT
+          SA_PASSWORD: "PASSWORD@1a"  #SYSTEM ADMINISTRATOR PASSWORD
+      volumes:
+         - sqlserver-data:/var/opt/mssql
+      networks:
+         - app-network
+      restart: unless-stopped
+
+#service 3 ...
+ 
+  volumes:  #list of all named volumes
+    sqlserver-data:
+
+  networks:
+    app-network:
+       driver: bridge
+  
   

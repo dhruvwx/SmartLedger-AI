@@ -136,9 +136,20 @@ builder.Services.AddAutoMapper(config => config.AddProfile<MappingProfile>());
 
 var app = builder.Build();
 
+
+
+//add after var app = builder.Build(); -TO ADD AUTOMATIC DATABASE MIGRATIONS FOR DOCKER
+if(!app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope(); //create scope
+    var db = scope.ServiceProvider.GetRequiredService<SmartLedgerDbContext>();
+    db.Database.Migrate();
+}
+
+
+
 // Configure the HTTP request pipeline.
          //USING THIS WE ADD MIDDLE WARE  
-
 
 if (app.Environment.IsDevelopment())
 {
@@ -161,5 +172,24 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+
+
+//HEALTH CHECK FOR DOCKER 
+        //LIVENESS PROBE (/health)
+app.MapGet("/health", () => Results.Ok("Healthy"));
+        //READINESS PROBE(/ready)
+app.MapGet("/ready", async (SmartLedgerDbContext db) =>
+                          {
+                              try
+                              {
+                                  await db.Database.CanConnectAsync();
+                                  return Results.Ok("Ready");
+                              }
+                              catch
+                              {
+                                  return Results.StatusCode(503);
+                              }
+                          });
 
 app.Run();

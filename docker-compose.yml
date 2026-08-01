@@ -15,7 +15,7 @@
         - ASPNETCORE_ENVIRONMENT=Production
 
         #"ConnectionStrings":"Default" - from appsetings (: = _ _)
-        - ConnectionStrings__Default=Server=sql-server,1433;Database=SmartLedgerDb;User=sa;Password=SystemAdministratorLogin@Pass;TrustServerCertificate=true
+        - ConnectionStrings__Default=Server=sql-server,1433;Database=SmartLedgerDb;User=sa;Password=PASSWORD@1a;TrustServerCertificate=true
   
         #secrets - keys etc (never actual sectrest - comes from .env or secret manager)
                  #~~~~ FROM APPSETTINGS.JSON ~~~~~ (: = _ _)
@@ -23,7 +23,7 @@
         - Jwt__Issuer=SmartLedgerAPI #same
         - Jwt__Audience=SmartLedgerUsers #same
         - AISettings__ApiKey=${AI_KEY} #from .env
-        - AISettings__AIModel=  #same
+        - AISettings__AIModel=llama-3.1-8b-instant #same
       
       volumes:
         - ./logs:/app/Logs

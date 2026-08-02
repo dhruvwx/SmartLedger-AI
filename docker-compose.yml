@@ -1,5 +1,5 @@
   #section 1
-  version: '3.8'
+  #version: '3.8' -not needed in newer docker version
 
   #section 2 - each service one container
   services:
@@ -11,6 +11,8 @@
       ports:
         - "8080:80"
       environment:
+        - ASPNETCORE_URLS=http://+:80
+
          #framework setting - production , development , staging
         - ASPNETCORE_ENVIRONMENT=Production
 

@@ -18,7 +18,8 @@ RUN dotnet publish "SmartLedgerAPI/SmartLedgerAPI.csproj" -c Release -o /app/pub
 
 
 #STAGE 2 - RUNTIME
-FROM mcr.microsoft.com/dotnet/aspnet:8.0  #runs app no sdk no compiler
+        #FROM runs app no sdk no compiler
+FROM mcr.microsoft.com/dotnet/aspnet:8.0  
 WORKDIR /app
 
 #install curl

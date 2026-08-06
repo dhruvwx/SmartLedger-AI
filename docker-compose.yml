@@ -31,7 +31,10 @@
         - ./logs:/app/Logs
 
       depends_on:
-        - sql-server #startup order
+        #- sql-server(befor health check / now add health check)       #startup order - it just check started not ready for that health check has to be added  
+         sql-server:
+            condition: service_healthy
+               
  
       networks:
         - app-network #connects container to app defined at bottom
@@ -49,15 +52,23 @@
           SA_PASSWORD: "PASSWORD@1a"  #SYSTEM ADMINISTRATOR PASSWORD
       volumes:
          - sqlserver-data:/var/opt/mssql
-      networks:
+      networks: 
          - app-network
       restart: unless-stopped
 
-#service 3 ...
+      #health check for api of database
+      healthcheck:
+          test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "PASSWORD@1a" -C -Q "SELECT 1" || exit 1
+          interval: 10s
+          timeout : 5s
+          retries: 10
+          start_period: 15s
+
+#service 3 .......
  
   volumes:  #list of all named volumes
     sqlserver-data:
-
+     
   networks:
     app-network:
        driver: bridge

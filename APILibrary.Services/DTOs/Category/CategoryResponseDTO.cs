@@ -11,6 +11,6 @@ namespace APILibrary.Services.DTOs.Category
         //used for category selection
         public int Id { get; set; }
 
-        public string CategoryName { get; set; }
+        public string? CategoryName { get; set; }
     }
 }

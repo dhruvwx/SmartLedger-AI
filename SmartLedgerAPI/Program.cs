@@ -30,10 +30,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Host.UseSerilog(logger);
 
+
+
+
 // Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+
+//ADDING IMEMORYCACHE FOR GETTING CATEGORIES FROM DATABASE AS IT DONT CHANGE OFTEN SO WE STORE THEM IN LOCAL CACHE  -- using in category service (it rarely changes)
+builder.Services.AddMemoryCache();
+
+
 
 builder.Services.AddCors(options =>
         {
@@ -96,7 +105,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateIssuerSigningKey = true,
-        ValidateLifetime = true,
+        ValidateLifetime = true, 
         ValidIssuer = jwtIssuer,
         ValidAudience = jwtAudience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)) 

@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using SmartLedgerAPI.AutoMapper;
 using SmartLedgerAPI.Middlewares;
+using StackExchange.Redis;
 using System.Text;
 
 
@@ -42,6 +43,17 @@ builder.Services.AddControllers();
 //ADDING IMEMORYCACHE FOR GETTING CATEGORIES FROM DATABASE AS IT DONT CHANGE OFTEN SO WE STORE THEM IN LOCAL CACHE  -- using in category service (it rarely changes)
 builder.Services.AddMemoryCache();
 
+//ADDING REDIS
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+         {
+             var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? "redis:6379";
+
+             var options = ConfigurationOptions.Parse(redisConnectionString);
+
+             options.AbortOnConnectFail = false;
+
+             return ConnectionMultiplexer.Connect(options);
+         });
 
 
 builder.Services.AddCors(options =>
@@ -156,15 +168,17 @@ if(!app.Environment.IsDevelopment())
 }
 
 
-
 // Configure the HTTP request pipeline.
-         //USING THIS WE ADD MIDDLE WARE  
+//USING THIS WE ADD MIDDLE WARE  
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+    //out of is to run docker in browser -------- 
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

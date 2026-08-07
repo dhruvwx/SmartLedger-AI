@@ -18,6 +18,7 @@
 
         #"ConnectionStrings":"Default" - from appsetings (: = _ _)
         - ConnectionStrings__Default=Server=sql-server,1433;Database=SmartLedgerDb;User=sa;Password=PASSWORD@1a;TrustServerCertificate=true
+        - ConnectionStrings__Redis=redis:6379
   
         #secrets - keys etc (never actual sectrest - comes from .env or secret manager)
                  #~~~~ FROM APPSETTINGS.JSON ~~~~~ (: = _ _)
@@ -49,7 +50,7 @@
          - "1433:1433"
       environment:
           ACCEPT_EULA: "Y" #END USER LICENSE AGREEMENT
-          SA_PASSWORD: "PASSWORD@1a"  #SYSTEM ADMINISTRATOR PASSWORD
+          SA_PASSWORD: "PASSWO RD@1a"  #SYSTEM ADMINISTRATOR PASSWORD
       volumes:
          - sqlserver-data:/var/opt/mssql
       networks: 
@@ -65,6 +66,14 @@
           start_period: 15s
 
 #service 3 .......
+    redis:
+      image: redis:7-alpine
+      container_name: smartledger-redis
+      ports:
+        - "6379:6379"
+      networks:
+        - app-network
+      restart: unless-stopped
  
   volumes:  #list of all named volumes
     sqlserver-data:

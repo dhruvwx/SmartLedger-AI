@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿  using Microsoft.Extensions.Configuration;
 using System.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
@@ -10,6 +10,8 @@ using System.Text.Json;
 using APILibrary.Services.AI.Models.RequestModels;
 using APILibrary.Services.AI.Repository;
 using APILibrary.Services.AI.Models.ResponseModels;
+using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
 
 namespace APILibrary.Services.AI.Services
 {
@@ -18,15 +20,57 @@ namespace APILibrary.Services.AI.Services
 
         private readonly HttpClient httpClient;
         private readonly IConfiguration config;
-        public ExpenseCategorizerByAi(HttpClient httpClient, IConfiguration config)
+
+        //logger / redis
+        private readonly ILogger<ExpenseCategorizerByAi> logger;
+        private readonly IConnectionMultiplexer redis;
+        public ExpenseCategorizerByAi(HttpClient httpClient, IConfiguration config, ILogger<ExpenseCategorizerByAi> logger, IConnectionMultiplexer redis)
         {
             this.httpClient = httpClient;
             this.config = config;
-        }
 
+            this.logger = logger;
+            this.redis = redis;
+        }
+         
+        //values that dont chnage defined once
+        private const string CacheKeyPrefix = "expense-categorizer";
+        private static readonly TimeSpan CacheExpiration = TimeSpan.FromHours(24);
 
         public async Task<string> CategorizeExpenseAsync(string description)
         {
+            string cacheKey = $"{CacheKeyPrefix}_{description.Trim().ToLower()}";
+
+            IDatabase db = redis.GetDatabase();
+
+            //try catch for redic connection
+            try //Redis has the data we want
+            {
+                RedisValue cachedData = await db.StringGetAsync(cacheKey);
+
+                if(cachedData.HasValue)
+                {
+                    logger.LogInformation("Redis HIT for key {CacheKey}", cacheKey);
+                    return cachedData.ToString();
+                }
+
+                logger.LogInformation("Redis MISS for key {CacheKey}", cacheKey);
+            }
+            catch (RedisConnectionException ex)
+            {
+                logger.LogWarning(ex, "Redis Connection failed during GET on key {CacheKey}, fallback on AI call", cacheKey);
+            }
+            catch (RedisTimeoutException ex)
+            {
+                logger.LogWarning(ex, "Redis Timeout during GET on key {CacheKey}, fallback on AI call", cacheKey);
+            }
+            catch (RedisException ex)
+            {
+                logger.LogWarning(ex, "Redis error during GET on key {CacheKey}, fallback on AI call", cacheKey);
+            }
+
+            //redisValue .HasValue false now run actual code to get values
+
             string apiKey = config["AISettings:ApiKey"];
             string model = config["AISettings:AIModel"];
 
@@ -56,7 +100,7 @@ namespace APILibrary.Services.AI.Services
 
             string jsonMsg = JsonSerializer.Serialize(aiExpenseCategorizationRequest);
 
-            Console.WriteLine(jsonMsg);
+            //Console.WriteLine(jsonMsg);
 
             var httpBodyObjectWithJson = new StringContent(jsonMsg, Encoding.UTF8, "application/json");
 
@@ -68,7 +112,19 @@ namespace APILibrary.Services.AI.Services
             var deSerializedResponse = JsonSerializer.Deserialize<AiExpenseCategorizationResponse>(responseRecievedFromAi);
 
             var categoryGivenByAi = deSerializedResponse.Choices[0].Message.Content;
-            Console.WriteLine(categoryGivenByAi);
+
+            //SAVE DATA ON REDIS
+            try
+            {
+                await db.StringSetAsync(cacheKey, categoryGivenByAi, CacheExpiration);
+
+                logger.LogInformation("Stored AI result to redis for key {CacheKey}", cacheKey);
+            }
+            catch (RedisException ex)
+            {
+                logger.LogWarning(ex, "Failed to cache data to redis for key {CacheKey} , result still returned (uncached)", cacheKey);
+            }
+
             return categoryGivenByAi;
         }
     }

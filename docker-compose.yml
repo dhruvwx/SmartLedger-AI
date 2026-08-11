@@ -18,6 +18,7 @@
 
         #"ConnectionStrings":"Default" - from appsetings (: = _ _)
         - ConnectionStrings__Default=Server=sql-server,1433;Database=SmartLedgerDb;User=sa;Password=PASSWORD@1a;TrustServerCertificate=true
+
         - ConnectionStrings__Redis=redis:6379
   
         #secrets - keys etc (never actual sectrest - comes from .env or secret manager)

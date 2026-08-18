@@ -12,7 +12,7 @@
         - "8080:80"
       environment:
         - ASPNETCORE_URLS=http://+:80
-
+         
          #framework setting - production , development , staging
         - ASPNETCORE_ENVIRONMENT=Production
 
@@ -27,7 +27,7 @@
         - Jwt__Issuer=SmartLedgerAPI #same
         - Jwt__Audience=SmartLedgerUsers #same
         - AISettings__ApiKey=${AI_KEY} #from .env
-        - AISettings__AIModel=llama-3.1-8b-instant #same
+        - AISettings__AIModel=qwen/qwen3.6-27b #same
       
       volumes:
         - ./logs:/app/Logs
@@ -51,7 +51,7 @@
          - "1433:1433"
       environment:
           ACCEPT_EULA: "Y" #END USER LICENSE AGREEMENT
-          SA_PASSWORD: "PASSWO RD@1a"  #SYSTEM ADMINISTRATOR PASSWORD
+          SA_PASSWORD: "PASSWORD@1a"  #SYSTEM ADMINISTRATOR PASSWORD
       volumes:
          - sqlserver-data:/var/opt/mssql
       networks: 

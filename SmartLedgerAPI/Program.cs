@@ -160,12 +160,12 @@ var app = builder.Build();
 
 
 //add after var app = builder.Build(); -TO ADD AUTOMATIC DATABASE MIGRATIONS FOR DOCKER
-if(!app.Environment.IsDevelopment())
-{
-    using var scope = app.Services.CreateScope(); //create scope
-    var db = scope.ServiceProvider.GetRequiredService<SmartLedgerDbContext>();
-    db.Database.Migrate();
-}
+//if(!app.Environment.IsDevelopment())
+//{
+//    using var scope = app.Services.CreateScope(); //create scope
+//    var db = scope.ServiceProvider.GetRequiredService<SmartLedgerDbContext>();
+//    db.Database.Migrate();
+//}
 
 
 // Configure the HTTP request pipeline.
@@ -180,7 +180,11 @@ if(!app.Environment.IsDevelopment())
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+if(app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+
+}
 
 //Injecting Global Exception Handler
 app.UseMiddleware<ExceptionHandlerMiddleware>();

@@ -27,7 +27,7 @@
         - Jwt__Issuer=SmartLedgerAPI #same
         - Jwt__Audience=SmartLedgerUsers #same
         - AISettings__ApiKey=${AI_KEY} #from .env
-        - AISettings__AIModel=qwen/qwen3.6-27b #same
+        - AISettings__AIModel=openai/gpt-oss-120b #same
       
       volumes:
         - ./logs:/app/Logs

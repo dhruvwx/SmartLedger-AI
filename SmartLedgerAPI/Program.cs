@@ -98,9 +98,17 @@ builder.Services.AddSwaggerGen(options =>
 //var connectionString = builder.Configuration["ConnectionStrings:Default"];
 var connectionString = builder.Configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Missing Connection String");
 
-builder.Services.AddDbContext<SmartLedgerDbContext>
-    (options => options.UseSqlServer(connectionString, b => b.MigrationsAssembly("SmartLedgerAPI")
-    ));
+builder.Services.AddDbContext<SmartLedgerDbContext> //OPTIONS lets us to customize how ef core talks to sql server
+                                                    //(options => options.UseSqlServer(connectionString, b => b.MigrationsAssembly("SmartLedgerAPI") //this line checks for migrations in another project mentioned    -- we need to add more settings so do following
+      (options => options.UseSqlServer(connectionString, sqlOptions =>
+                            {
+                                sqlOptions.MigrationsAssembly("SmartLedgerAPI");
+                                sqlOptions.EnableRetryOnFailure(
+                                    maxRetryCount: 5, //ef core retries 5 more times (total 6 including 1st)
+                                    maxRetryDelay: TimeSpan.FromSeconds(30), //ef core uses exponential backoff (1stTry-2sec, 2ndTry-4sec, 6thTry-30sec, maxRetryDelay will cap it at 30sec , wont increse it to 32etc will stay under 30)
+                                    errorNumbersToAdd: null); //ef core retries a known list of Transient Error Numbers (temp. errors(40613 serverless paused) that solves on retry) by default, errorNumbersToAdd lets us add more error numbers to the list -> : new int[] {12345}
+                            })
+      );
 
 
 //Required configs for authentication
@@ -160,6 +168,7 @@ var app = builder.Build();
 
 
 //add after var app = builder.Build(); -TO ADD AUTOMATIC DATABASE MIGRATIONS FOR DOCKER
+        //removed for azure , use manual migrations there 
 //if(!app.Environment.IsDevelopment())
 //{
 //    using var scope = app.Services.CreateScope(); //create scope
@@ -176,7 +185,7 @@ var app = builder.Build();
 //    app.UseSwagger();
 //    app.UseSwaggerUI();
 //}
-    //out of is to run docker in browser -------- 
+    //out of if to run docker in browser -------- 
 app.UseSwagger();
 app.UseSwaggerUI();
 

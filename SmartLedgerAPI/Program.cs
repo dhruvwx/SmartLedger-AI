@@ -14,6 +14,7 @@ using SmartLedgerAPI.AutoMapper;
 using SmartLedgerAPI.Middlewares;
 using StackExchange.Redis;
 using System.Text;
+using Microsoft.ApplicationInsights.AspNetCore;
 
 
 //Injecting Serilog
@@ -26,6 +27,9 @@ Log.Logger = logger;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+//Setting application insights for azure 
+builder.Services.AddApplicationInsightsTelemetry();
 
 //CONNECTING .NET TO SERILOG
 builder.Logging.ClearProviders();

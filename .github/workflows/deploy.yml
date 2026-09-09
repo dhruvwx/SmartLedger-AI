@@ -96,7 +96,7 @@ jobs:
       - name: Get staging URL
         id: staging-url
         run: |
-          URL=$(az webapp deployment slot show \
+          URL=$(az webapp show \
             --name ${{ env.APP_SERVICE_NAME }} \
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --slot staging \

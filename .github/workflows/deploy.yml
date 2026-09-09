@@ -16,7 +16,7 @@ env:
   APP_SERVICE_NAME: smartledgerAI
   RESOURCE_GROUP: SmartLedgerRG
   KV_NAME: smartledger-kv
-  DOTNET_EF_VERSION: 8.0.27 
+  DOTNET_EF_VERSION: 8.0.27
 
 jobs:
   test:
@@ -93,10 +93,20 @@ jobs:
           slot-name: staging
           images: ${{ env.ACR_NAME }}.azurecr.io/smartledger-api:${{ github.sha }}
 
+      - name: Get staging URL
+        id: staging-url
+        run: |
+          URL=$(az webapp deployment slot show \
+            --name ${{ env.APP_SERVICE_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --slot staging \
+            --query defaultHostName -o tsv)
+          echo "url=https://$URL" >> "$GITHUB_OUTPUT"
+
       - name: Smoke Test Staging
         run: |
           for i in {1..10}; do
-            status=$(curl -s --max-time 10 -o /dev/null -w "%{http_code}" https://${{ env.APP_SERVICE_NAME }}-staging.azurewebsites.net/health)
+            status=$(curl -s --max-time 10 -o /dev/null -w "%{http_code}" ${{ steps.staging-url.outputs.url }}/health)
             if [ "$status" = "200" ]; then
               echo "Staging healthy"
               exit 0
@@ -131,10 +141,19 @@ jobs:
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --slot staging
 
+      - name: Get production URL
+        id: prod-url
+        run: |
+          URL=$(az webapp show \
+            --name ${{ env.APP_SERVICE_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --query defaultHostName -o tsv)
+          echo "url=https://$URL" >> "$GITHUB_OUTPUT"
+
       - name: Smoke Test Production (Auto-Rollback)
         run: |
           for i in {1..10}; do
-            status=$(curl -s --max-time 10 -o /dev/null -w "%{http_code}" https://${{ env.APP_SERVICE_NAME }}.azurewebsites.net/health)
+            status=$(curl -s --max-time 10 -o /dev/null -w "%{http_code}" ${{ steps.prod-url.outputs.url }}/health)
             if [ "$status" = "200" ]; then
               echo "Production healthy"
               exit 0
@@ -148,29 +167,3 @@ jobs:
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --slot staging
           exit 1
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  

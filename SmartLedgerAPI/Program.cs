@@ -30,7 +30,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 //Setting application insights for azure 
       //---If running locally , remove it as it needs a connection string , which is not present locally 
-//builder.Services.AddApplicationInsightsTelemetry();
+builder.Services.AddApplicationInsightsTelemetry();
 
 //CONNECTING .NET TO SERILOG
 builder.Logging.ClearProviders();

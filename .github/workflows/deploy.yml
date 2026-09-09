@@ -1,0 +1,176 @@
+name: SmartLedger CI/CD
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  ACR_NAME: smartledger
+  APP_SERVICE_NAME: smartledgerAI
+  RESOURCE_GROUP: SmartLedgerRG
+  KV_NAME: smartledger-kv
+  DOTNET_EF_VERSION: 8.0.27 
+
+jobs:
+  test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: ${{ runner.os }}-nuget-
+      - run: dotnet restore
+      - run: dotnet build --no-restore --configuration Release
+      - run: dotnet test --no-build --configuration Release --verbosity normal
+
+  deploy-staging:
+    name: Build, Migrate & Deploy to Staging
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: smartledger-production-deploy
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Log in to ACR
+        run: |
+          az acr login --name ${{ env.ACR_NAME }} --expose-token --output tsv --query accessToken | \
+          docker login ${{ env.ACR_NAME }}.azurecr.io --username 00000000-0000-0000-0000-000000000000 --password-stdin
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ env.ACR_NAME }}.azurecr.io/smartledger-api:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Fetch DB connection string from Key Vault
+        run: |
+          DB_CONNECTION_STRING=$(az keyvault secret show --vault-name ${{ env.KV_NAME }} --name SqlConnectionString --query value -o tsv)
+          echo "::add-mask::$DB_CONNECTION_STRING"
+          echo "DB_CONNECTION_STRING=$DB_CONNECTION_STRING" >> $GITHUB_ENV
+
+      - name: Run Database Migrations (before deploy — must be backward-compatible)
+        run: |
+          dotnet tool install --global dotnet-ef --version ${{ env.DOTNET_EF_VERSION }}
+          dotnet ef database update --project SmartLedgerAPI --startup-project SmartLedgerAPI --connection "${{ env.DB_CONNECTION_STRING }}"
+
+      - name: Deploy to Staging Slot
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.APP_SERVICE_NAME }}
+          slot-name: staging
+          images: ${{ env.ACR_NAME }}.azurecr.io/smartledger-api:${{ github.sha }}
+
+      - name: Smoke Test Staging
+        run: |
+          for i in {1..10}; do
+            status=$(curl -s --max-time 10 -o /dev/null -w "%{http_code}" https://${{ env.APP_SERVICE_NAME }}-staging.azurewebsites.net/health)
+            if [ "$status" = "200" ]; then
+              echo "Staging healthy"
+              exit 0
+            fi
+            echo "Attempt $i: got $status, retrying in 10s..."
+            sleep 10
+          done
+          echo "Staging health check failed"
+          exit 1
+
+  promote-to-production:
+    name: Swap to Production
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: production
+    concurrency:
+      group: smartledger-production-deploy
+      cancel-in-progress: false
+    steps:
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Swap to Production
+        run: |
+          az webapp deployment slot swap \
+            --name ${{ env.APP_SERVICE_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --slot staging
+
+      - name: Smoke Test Production (Auto-Rollback)
+        run: |
+          for i in {1..10}; do
+            status=$(curl -s --max-time 10 -o /dev/null -w "%{http_code}" https://${{ env.APP_SERVICE_NAME }}.azurewebsites.net/health)
+            if [ "$status" = "200" ]; then
+              echo "Production healthy"
+              exit 0
+            fi
+            echo "Attempt $i: got $status, retrying in 10s..."
+            sleep 10
+          done
+          echo "Production health check failed — rolling back"
+          az webapp deployment slot swap \
+            --name ${{ env.APP_SERVICE_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --slot staging
+          exit 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  

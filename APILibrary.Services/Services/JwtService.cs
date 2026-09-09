@@ -1,4 +1,4 @@
-﻿using APILibrary.Data.Models;
+﻿ using APILibrary.Data.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;

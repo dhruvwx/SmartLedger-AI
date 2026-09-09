@@ -23,18 +23,6 @@ namespace APILibrary.Data
         public DbSet<Budget> Budgets { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
 
-
-        //Table needs few Default values == it is added by OnCreatingModel(ModelBuilder)
-
-                        //.HasData() == seeds the data as rows in blank columns created by EF CORE
-                                    //Id hardcoded coz IDENTITY(auto increment) for seed data = EF tracks rows it seeded so it can update them in future migrations if you change the seed data.
-
-                        //.HasPrecison() == DECIMAL(18,2) --SqlServer 18digits, 2digits after decimal, {it is same as [Column(TypeName = "decimal(18,2)")]} it is also default but explicit is better  ----- Do this for all money columns
-
-                        //.Property() -- used to configure exact column in the table
-
-                        //.Entity<> == configures table
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Category>().HasData
